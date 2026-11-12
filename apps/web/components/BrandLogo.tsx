@@ -19,9 +19,9 @@ export function BrandLogo({
       <span className={`brandLogoMark ${compact ? "compact" : ""}`}>
         <Image
           src="/athena-logo.png"
-          alt=""
-          width={compact ? 40 : 160}
-          height={compact ? 40 : 160}
+          alt="Athena"
+          width={compact ? 84 : 192}
+          height={compact ? 84 : 192}
           priority
           className="brandLogoImage"
         />
