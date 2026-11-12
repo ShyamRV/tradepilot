@@ -1,4 +1,4 @@
-"""Outbox worker entrypoint.
+"""Outbox + autonomous agent loop worker entrypoint.
 
 Docker / Render / Railway override:
   python -m apps.worker.main
@@ -13,11 +13,17 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
+from tradepilot.agent_runtime import DeterministicAgentRuntime
+from tradepilot.agents import AgentControlPlane
 from tradepilot.controls import BetaControls
 from tradepilot.durable import build_runtime
 from tradepilot.env_loader import load_default_env
+from tradepilot.llm_glm import GlmLLMProvider
 from tradepilot.logging_utils import configure_logging, init_sentry_stub
 from tradepilot.messaging import TelegramAdapter, dispatch_outbox
+from tradepilot.realtime import SandboxBroker, SimulatedMarketDataProvider
+from tradepilot.settings import TradingSettings
+from tradepilot.workers.agent_loop import AgentLoopWorker
 
 load_default_env(Path(__file__).resolve().parents[2])
 
@@ -60,6 +66,20 @@ def main() -> None:
     poll = _poll_seconds()
     repository, _auth = build_runtime()
     controls = BetaControls()
+    settings = TradingSettings.from_env()
+    market = SimulatedMarketDataProvider(seed=settings.simulator_seed, spread_bps=settings.simulator_spread_bps)
+    broker = SandboxBroker(
+        slippage_bps=settings.simulator_slippage_bps,
+        max_fill_quantity=settings.simulator_max_fill_quantity,
+    )
+    agent_loop = AgentLoopWorker(
+        repository,
+        settings=settings,
+        market=market,
+        broker=broker,
+        agent_control=AgentControlPlane(repository),
+        runtime=DeterministicAgentRuntime(llm=GlmLLMProvider()),
+    )
 
     if not token:
         logger.warning(
@@ -82,6 +102,21 @@ def main() -> None:
                     "outbox_dispatched",
                     extra={"event": "outbox_dispatched", "service": "worker"},
                 )
+            if settings.autonomous_trading_enabled and settings.paper_trading:
+                workspaces = repository.values("agent_loop_workspaces", "global")
+                for item in workspaces:
+                    workspace_id = item["id"] if isinstance(item, dict) else str(item)
+                    results = agent_loop.tick_workspace(workspace_id)
+                    if results:
+                        logger.info(
+                            "agent_loop_tick",
+                            extra={
+                                "event": "agent_loop_tick",
+                                "service": "worker",
+                                "workspace_id": workspace_id,
+                                "count": len(results),
+                            },
+                        )
         except urllib.error.URLError:
             logger.error(
                 "telegram_transport_error",

@@ -22,6 +22,9 @@ We are **not** replacing TradePilot with that pack. We reuse a few durable ideas
 - Full US Yahoo universe scanner, SEC/Pelosi modules, Alpaca MCP “Allow once” card.
 - File-based `trader/*.json` workspace on disk — TradePilot uses API + DB / demo store.
 
-## Next integration slice (when ready)
+## Implemented in TradePilot
 
-Map scanner → signal, exit planner → stop/target fields, timemachine → backtest odds panel, risk/budget → existing pretrade + agent limits, broker ticket → sandbox order preview modal.
+- `packages/tradepilot/strategies/` — adapted scan / entry / exit / budget / timemachine / pipeline
+- `packages/tradepilot/workers/agent_loop.py` — autonomous paper cycle for RUNNING delegated agents
+- Agent create UI — day / swing / long-term templates; control room shows pipeline stage + odds
+- GLM provider (`llm_glm.py`) — OpenAI-compatible; falls back when unset

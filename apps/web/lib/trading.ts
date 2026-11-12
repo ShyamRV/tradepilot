@@ -37,11 +37,15 @@ export type PaperOrder = OrderInput & {
 
 export const agentSchema = z.object({
   name: z.string().trim().min(3).max(50),
-  strategy: z.enum(["Momentum", "Mean reversion", "Breakout"]),
+  strategy: z.enum(["Momentum", "Mean reversion", "Breakout", "Opening range", "Swing trend"]),
   risk: z.enum(["Conservative", "Balanced", "Aggressive"]),
   universe: z.string().trim().min(2).max(120),
   capital: z.coerce.number().positive().max(10_000_000),
-  dailyLoss: z.coerce.number().positive()
+  dailyLoss: z.coerce.number().positive(),
+  horizon: z.enum(["intraday", "swing", "position"]).default("intraday"),
+  stopRule: z.enum(["or_mid", "prior_low", "pct"]).default("or_mid"),
+  targetR: z.coerce.number().positive().max(5).default(1),
+  autonomyMode: z.enum(["delegated", "advisory"]).default("delegated")
 }).refine((value) => value.dailyLoss < value.capital, {
   path: ["dailyLoss"],
   message: "Daily loss must be below allocated capital."
@@ -50,9 +54,10 @@ export const agentSchema = z.object({
 export type AgentInput = z.infer<typeof agentSchema>;
 export type TradingAgent = AgentInput & {
   id: string;
-  status: "RUNNING" | "PAUSED" | "KILLED";
+  status: "RUNNING" | "PAUSED" | "KILLED" | "CREATED" | "STOPPED";
   pnl: number;
   createdAt: string;
+  lastStage?: string;
   decisions: Array<{ time: string; signal: string; rationale: string; checks: string; result: string }>;
 };
 

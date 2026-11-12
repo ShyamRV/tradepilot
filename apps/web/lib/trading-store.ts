@@ -27,9 +27,14 @@ const seedAgents: TradingAgent[] = [
     universe: "NIFTY 50",
     capital: 250000,
     dailyLoss: 5000,
+    horizon: "intraday",
+    stopRule: "or_mid",
+    targetR: 1,
+    autonomyMode: "delegated",
     status: "RUNNING",
     pnl: 3840,
     createdAt: new Date().toISOString(),
+    lastStage: "ready",
     decisions: [
       {
         time: "14:42 IST",

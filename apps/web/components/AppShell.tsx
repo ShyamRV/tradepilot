@@ -8,6 +8,7 @@ import { useWorkspace } from "@/components/WorkspaceProvider";
 
 const NAV = [
   { href: "/overview", label: "Overview", icon: "◈" },
+  { href: "/playground", label: "Playground", icon: "▹" },
   { href: "/markets", label: "Markets", icon: "◔" },
   { href: "/terminal/NSE/RELIANCE", label: "Terminal", icon: "⌁" },
   { href: "/watchlist", label: "Watchlist", icon: "▦" },
@@ -96,6 +97,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               pathname === item.href ||
               (item.href.startsWith("/terminal") && pathname.startsWith("/terminal")) ||
               (item.href === "/agents" && pathname.startsWith("/agents")) ||
+              (item.href === "/playground" && pathname.startsWith("/playground")) ||
               (item.href === "/markets" && pathname.startsWith("/markets")) ||
               (item.href === "/account" && pathname.startsWith("/account"));
             return (

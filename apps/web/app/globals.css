@@ -197,8 +197,46 @@ h1, h2, h3, .brand, .authBrand, .heroMetric strong {
   border-radius: 14px;
   background: var(--panel);
 }
+.workflowSteps li.activeStage {
+  border-color: var(--cyan);
+  background: var(--cyan-soft);
+}
 .workflowSteps strong { font-size: 12px; }
 .workflowSteps span { color: var(--muted); font-size: 11px; line-height: 1.4; }
+.horizonPicker {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.horizonPicker button {
+  display: grid;
+  gap: 6px;
+  text-align: left;
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--text);
+  cursor: pointer;
+}
+.horizonPicker button.active {
+  border-color: var(--cyan);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--cyan) 35%, transparent);
+}
+.horizonPicker span { color: var(--muted); font-size: 12px; line-height: 1.4; }
+.oddsPanel .oddsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  padding: 8px 4px 12px;
+}
+.oddsPanel .oddsGrid div { display: grid; gap: 4px; }
+.oddsPanel .oddsGrid span { color: var(--muted); font-size: 11px; }
+.oddsPanel .oddsGrid strong { font-size: 1.05rem; }
+@media (max-width: 900px) {
+  .horizonPicker { grid-template-columns: 1fr; }
+  .oddsPanel .oddsGrid { grid-template-columns: 1fr 1fr; }
+}
 .accountGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1308,6 +1346,173 @@ select {
 .cyanDot { background: var(--cyan); }
 .amberDot { background: var(--amber); }
 
+.heroActions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.playgroundBanner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  padding: 22px 24px;
+  border: 1px solid rgba(51, 225, 255, 0.28);
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at 12% 20%, rgba(51, 225, 255, 0.14), transparent 42%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.03), rgba(255, 176, 32, 0.05));
+}
+.playgroundBanner h2 { margin: 0 0 6px; font-size: clamp(20px, 2.4vw, 28px); }
+.playgroundBanner p { margin: 0; color: var(--muted); max-width: 62ch; line-height: 1.5; }
+.playgroundProgressCard {
+  min-width: 160px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  display: grid;
+  gap: 6px;
+}
+.playgroundProgressCard span,
+.playgroundProgressCard small { color: var(--muted); font-size: 11px; }
+.playgroundProgressCard strong { font-size: 28px; letter-spacing: -0.04em; }
+.playgroundMeter {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+.playgroundMeter i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--cyan), var(--amber));
+}
+.playgroundLayout {
+  display: grid;
+  grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+.playgroundChecklist {
+  list-style: none;
+  margin: 0;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--panel);
+  display: grid;
+  gap: 12px;
+  position: sticky;
+  top: 16px;
+}
+.playgroundChecklist li {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: 10px;
+  align-items: start;
+}
+.playgroundChecklist strong { display: block; font-size: 13px; margin-bottom: 2px; }
+.playgroundChecklist p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.45; }
+.playgroundChecklist li.done strong { color: var(--lime); }
+.playgroundStepIndex {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--muted);
+}
+.playgroundChecklist li.done .playgroundStepIndex {
+  color: var(--lime);
+  border-color: rgba(122, 255, 168, 0.45);
+  background: var(--lime-soft);
+}
+.playgroundPanels { display: grid; gap: 16px; }
+.playgroundLead { margin: 0 0 14px; color: var(--muted); line-height: 1.5; font-size: 13px; }
+.playgroundTradePreview {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 4px;
+}
+.playgroundTradePreview div {
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.02);
+}
+.playgroundTradePreview span {
+  display: block;
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.playgroundTradePreview strong { font-size: 14px; }
+.playgroundNote { margin: 12px 0 0; font-size: 12px; line-height: 1.5; color: var(--lime); }
+.playgroundNote.muted { color: var(--muted); }
+.pipelineStages {
+  list-style: none;
+  margin: 0 0 14px;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.pipelineStages button {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 7px 11px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+.pipelineStages li.active button {
+  border-color: var(--cyan);
+  color: var(--ink);
+  background: rgba(51, 225, 255, 0.12);
+}
+.pipelineStages li.passed button {
+  border-color: rgba(122, 255, 168, 0.35);
+  color: var(--lime);
+}
+.pipelineDetail {
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.02);
+  margin-bottom: 4px;
+}
+.pipelineDetail h3 { margin: 0 0 6px; font-size: 15px; }
+.pipelineDetail p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
+.trustChecks {
+  list-style: none;
+  margin: 0 0 8px;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.trustChecks li {
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.trustChecks li.on {
+  border-color: rgba(122, 255, 168, 0.35);
+  color: var(--ink);
+  background: var(--lime-soft);
+}
+.trustChecks li.on::before {
+  content: "✓ ";
+  color: var(--lime);
+  font-weight: 800;
+}
+
 @media (max-width: 1280px) {
   .terminalGrid { grid-template-columns: 160px minmax(380px, 1fr) 260px; }
   .instrumentBar { grid-template-columns: minmax(190px, 1fr) 1fr auto auto; }
@@ -1331,4 +1536,9 @@ select {
   .sectionHero, .agentDetailHeader { align-items: flex-start; flex-direction: column; }
   .agentControls { width: 100%; }
   .tradingChart { height: 330px; }
+  .playgroundLayout { grid-template-columns: 1fr; }
+  .playgroundChecklist { position: static; }
+  .playgroundBanner { flex-direction: column; align-items: flex-start; }
+  .playgroundTradePreview { grid-template-columns: 1fr; }
+  .formActions { flex-wrap: wrap; justify-content: flex-start; }
 }

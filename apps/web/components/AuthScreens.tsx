@@ -79,7 +79,7 @@ function AuthPanel({
         <p className="onboardingIntro">
           {mode === "login"
             ? "Enter your email and password to open your desk."
-            : "Just a few details — same simple start as apps like Groww or Binance."}
+            : "Just a few details — then use the Playground with dummy capital and AI agents before any live trading."}
         </p>
         {error && (
           <div className="message error" role="alert">

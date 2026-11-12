@@ -19,7 +19,9 @@ from starlette.middleware.base import BaseHTTPMiddleware
 
 from .ai import explain_record
 from .agent_runtime import DeterministicAgentRuntime
-from .agents import AgentConfig, AgentControlPlane
+from .agents import AgentConfig, AgentControlPlane, AgentHorizon, AutonomyMode
+from .llm_glm import GlmLLMProvider
+from .workers.agent_loop import AgentLoopWorker
 from .analysis import analyze
 from .auth import AuthProvider, AuthenticationError, InMemoryAuthProvider
 from .controls import BetaControls, FeatureDisabledError, QuotaExceededError
@@ -151,6 +153,12 @@ class AgentInput(BaseModel):
     strategy: str = Field(min_length=1, max_length=120)
     max_capital: Decimal = Field(gt=0)
     max_daily_loss: Decimal = Field(gt=0)
+    horizon: str = "intraday"
+    setups: list[str] = Field(default_factory=list)
+    stop_rule: str = "or_mid"
+    target_r: Decimal = Field(default=Decimal("1"), gt=0)
+    autonomy_mode: str = "delegated"
+    flat_by_minute: int | None = 235
 
 
 class AgentControlInput(BaseModel):
@@ -201,7 +209,16 @@ def create_app(
     if not broker.sandbox:
         raise RuntimeError("only a sandbox BrokerGateway is permitted")
     agent_control = AgentControlPlane(repo)
-    agent_runtime = DeterministicAgentRuntime()
+    glm = GlmLLMProvider()
+    agent_runtime = DeterministicAgentRuntime(llm=glm if glm.base_url and glm.api_key else None)
+    agent_loop = AgentLoopWorker(
+        repo,
+        settings=settings,
+        market=market_provider,
+        broker=broker if isinstance(broker, SandboxBroker) else SandboxBroker(),
+        agent_control=agent_control,
+        runtime=agent_runtime,
+    )
     model_call = explanation_model or (lambda _: {})
 
     def execution_control(workspace_id: str) -> dict[str, Any]:
@@ -684,12 +701,42 @@ def create_app(
     def create_agent(workspace_id: str, body: AgentInput, actor: Principal = Depends(principal)):
         authorize(actor, workspace_id, "owner")
         symbols = tuple(dict.fromkeys(symbol.strip().upper() for symbol in body.symbols if symbol.strip()))
+        try:
+            horizon = AgentHorizon(body.horizon.lower())
+            autonomy = AutonomyMode(body.autonomy_mode.lower())
+        except ValueError as exc:
+            raise HTTPException(400, str(exc)) from None
         agent = agent_control.create(
             workspace_id,
-            AgentConfig(body.name, symbols, body.strategy, body.max_capital, body.max_daily_loss),
+            AgentConfig(
+                name=body.name,
+                symbols=symbols,
+                strategy=body.strategy,
+                max_capital=body.max_capital,
+                max_daily_loss=body.max_daily_loss,
+                horizon=horizon,
+                setups=tuple(item.strip() for item in body.setups if item.strip()),
+                stop_rule=body.stop_rule,
+                target_r=body.target_r,
+                autonomy_mode=autonomy,
+                flat_by_minute=body.flat_by_minute,
+            ),
         )
-        audit(repo, actor, "agent.created", agent.id)
+        repo.put("agent_loop_workspaces", "global", workspace_id, {"id": workspace_id})
+        audit(repo, actor, "agent.created", agent.id, horizon=horizon.value, autonomy=autonomy.value)
         return agent
+
+    @app.post("/v1/workspaces/{workspace_id}/agents/tick")
+    def tick_agents(workspace_id: str, actor: Principal = Depends(principal)):
+        """Run one autonomous evaluation cycle for all RUNNING agents (paper sandbox)."""
+        authorize(actor, workspace_id, "owner")
+        if not settings.autonomous_trading_enabled:
+            raise HTTPException(503, {"code": "autonomous_trading_disabled"})
+        if execution_control(workspace_id)["killed"]:
+            raise HTTPException(503, {"code": "execution_killed"})
+        results = agent_loop.tick_workspace(workspace_id)
+        audit(repo, actor, "agent.tick", workspace_id, count=len(results))
+        return {"results": results}
 
     @app.get("/v1/workspaces/{workspace_id}/agents")
     def list_agents(workspace_id: str, actor: Principal = Depends(principal)):

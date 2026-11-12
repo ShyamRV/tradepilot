@@ -16,6 +16,9 @@ export default function SupportPage() {
             Confirm the honesty banner: <strong>Paper trading only · Not investment advice</strong>.
           </li>
           <li>
+            Open <strong>Playground</strong> for guided dummy trades and an AI agent walkthrough before you Start agents.
+          </li>
+          <li>
             Open <strong>Account</strong> for your profile, workspace, and preferences.
           </li>
           <li>

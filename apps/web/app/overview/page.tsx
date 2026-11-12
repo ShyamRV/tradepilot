@@ -18,6 +18,20 @@ export default function OverviewPage() {
         a branded US/crypto relay chart. Paper portfolio metrics stay below.
       </p>
 
+      <section className="playgroundBanner" aria-label="Playground">
+        <div>
+          <p className="eyebrow">New here?</p>
+          <h2>Learn with dummy trading</h2>
+          <p>
+            Place sample paper orders, walk an AI agent decision end-to-end, and try Pause / Kill before you ever
+            consider live broker linking.
+          </p>
+        </div>
+        <Link className="primary inlineButton" href="/playground">
+          Open playground
+        </Link>
+      </section>
+
       <section className="kpiStrip" aria-label="Workspace summary">
         <article className="kpi">
           <span>Total equity</span>

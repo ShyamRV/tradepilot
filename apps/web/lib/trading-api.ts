@@ -30,12 +30,20 @@ export const backendAgentSchema = z.object({
     symbols: z.array(z.string()),
     strategy: z.string(),
     max_capital: z.coerce.number(),
-    max_daily_loss: z.coerce.number()
+    max_daily_loss: z.coerce.number(),
+    horizon: z.string().optional(),
+    setups: z.array(z.string()).optional(),
+    stop_rule: z.string().optional(),
+    target_r: z.coerce.number().optional(),
+    autonomy_mode: z.string().optional(),
+    flat_by_minute: z.number().nullable().optional()
   }),
   created_at: z.string(),
   updated_at: z.string(),
-  last_control_reason: z.string().nullable()
-});
+  last_control_reason: z.string().nullable(),
+  last_pipeline_stage: z.string().nullable().optional(),
+  daily_pnl: z.coerce.number().optional()
+}).passthrough();
 export type BackendAgent = z.infer<typeof backendAgentSchema>;
 export const agentDecisionSchema = z.object({
   id: z.string(),
@@ -104,6 +112,12 @@ export async function createBackendAgent(
     strategy: string;
     max_capital: string;
     max_daily_loss: string;
+    horizon?: string;
+    setups?: string[];
+    stop_rule?: string;
+    target_r?: string;
+    autonomy_mode?: string;
+    flat_by_minute?: number | null;
   }
 ): Promise<BackendAgent> {
   if (!API_URL) throw new ApiError("Live API is not configured.", 0);
@@ -114,6 +128,16 @@ export async function createBackendAgent(
   });
   if (!response.ok) throw new ApiError(`Unable to create agent (${response.status}).`, response.status);
   return backendAgentSchema.parse(await response.json());
+}
+
+export async function tickBackendAgents(session: TradingSession): Promise<{ results: unknown[] }> {
+  if (!API_URL) throw new ApiError("Live API is not configured.", 0);
+  const response = await fetch(`${API_URL}/v1/workspaces/${session.workspaceId}/agents/tick`, {
+    method: "POST",
+    headers: headers(session)
+  });
+  if (!response.ok) throw new ApiError(`Agent tick failed (${response.status}).`, response.status);
+  return z.object({ results: z.array(z.unknown()) }).parse(await response.json());
 }
 
 export async function controlBackendAgent(

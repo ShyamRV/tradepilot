@@ -123,6 +123,7 @@ export default function AccountPage() {
             <h2>Quick links</h2>
           </header>
           <div className="accountLinks">
+            <Link href="/playground">Playground</Link>
             <Link href="/portfolio">Portfolio</Link>
             <Link href="/agents">AI agents</Link>
             <Link href="/markets">Markets</Link>

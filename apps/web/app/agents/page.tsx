@@ -31,9 +31,12 @@ export default function AgentsPage() {
     <div className="stack">
       <header className="sectionHero">
         <div><p className="eyebrow">Automation control centre</p><h2>AI agents</h2><p>Delegate paper-trading decisions within explicit capital and loss limits. Every decision remains reviewable.</p></div>
-        <Link className="primary inlineButton" href="/agents/new">Create agent</Link>
+        <div className="heroActions">
+          <Link className="ghostButton inlineButton" href="/playground">Playground first</Link>
+          <Link className="primary inlineButton" href="/agents/new">Create agent</Link>
+        </div>
       </header>
-      <div className="disclosure">Agent performance is simulated and does not predict future results. Automated trading can amplify losses. Kill controls stop future actions but cannot reverse completed paper fills.</div>
+      <div className="disclosure">Agent performance is simulated and does not predict future results. Automated trading can amplify losses. Kill controls stop future actions but cannot reverse completed paper fills. New to agents? Use the Playground to place dummy trades and walk the decision pipeline before you Start.</div>
       {backend.isError && <div className="errorState">Live agent service is unavailable; showing the local sandbox view.</div>}
       <section className="agentGrid">
         {agents.map((agent) => (
