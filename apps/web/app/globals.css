@@ -980,6 +980,57 @@ select {
 .watchRail a > span { display: grid; gap: 3px; }
 .watchRail a > span:last-child { text-align: right; }
 .watchRail small { color: var(--muted); font-size: 9px; }
+.liveMarketPanel { padding: 0; overflow: hidden; }
+.liveMarketHeader {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(160px, 0.8fr) auto;
+  gap: 16px;
+  align-items: end;
+  padding: 18px 18px 8px;
+}
+.liveMarketTitleRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+.liveMarketTitleRow h2 { margin: 0; font-size: 1.45rem; }
+.liveMarketQuote {
+  display: grid;
+  justify-items: start;
+  gap: 4px;
+}
+.liveMarketQuote strong {
+  font-size: 1.7rem;
+  letter-spacing: -0.03em;
+}
+.liveMarketQuote small { color: var(--muted); }
+.liveMarketControls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: end;
+  justify-content: flex-end;
+}
+.liveMarketControls label {
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+.liveMarketControls select {
+  min-width: 140px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in oklab, var(--line) 80%, transparent);
+  background: color-mix(in oklab, var(--panel) 88%, transparent);
+  color: var(--text);
+  padding: 10px 12px;
+}
+@media (max-width: 960px) {
+  .liveMarketHeader { grid-template-columns: 1fr; align-items: start; }
+  .liveMarketControls { justify-content: flex-start; }
+}
 .chartPanel { padding: 0; overflow: hidden; }
 .chartToolbar { min-height: 46px; display: flex; justify-content: space-between; gap: 10px; align-items: center; padding: 9px 14px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 10px; }
 .chartToolbar div { display: flex; gap: 5px; align-items: center; }

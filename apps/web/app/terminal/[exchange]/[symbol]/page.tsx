@@ -166,10 +166,16 @@ export default function TerminalPage({ params }: Props) {
           <section className="panel chartPanel">
             <header className="chartToolbar">
               <div><strong>5m</strong><button type="button">15m</button><button type="button">1h</button><button type="button">1D</button></div>
-              <span>O {instrument.price.toFixed(2)} · H {(instrument.price * 1.007).toFixed(2)} · L {(instrument.price * .993).toFixed(2)}</span>
+              <span>
+                LTP ₹{tick.price.toFixed(2)} · {tick.change >= 0 ? "+" : ""}
+                {tick.change.toFixed(2)}% · {status === "demo" ? "Simulated live" : status}
+              </span>
             </header>
-            <TradingChart price={instrument.price} />
-            <p className="chartCaption">Illustrative candles and volume. Streamed last price may differ from chart history.</p>
+            <TradingChart price={instrument.price} livePrice={tick.price} />
+            <p className="chartCaption">
+              Candles update from the live tick stream. Sandbox simulator or API quotes only — not licensed exchange
+              realtime.
+            </p>
           </section>
 
           <section className="panel blotter">

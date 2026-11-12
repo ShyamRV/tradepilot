@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { BarLineChart, MultiLineChart, Sparkline } from "@/components/Charts";
+import { LiveMarketPanel } from "@/components/LiveMarketPanel";
 import { useWorkspace } from "@/components/WorkspaceProvider";
 import { money, pct } from "@/lib/format";
 
@@ -12,8 +13,8 @@ export default function OverviewPage() {
   return (
     <div className="stack">
       <p className="pageIntro">
-        A research desk for delayed NSE cash equities. Review freshness, strategy pressure, and paper exposure before
-        moving into detailed pages.
+        A research desk for delayed NSE cash equities. Review the live paper market graph, strategy pressure, and
+        portfolio exposure before moving into the terminal.
       </p>
 
       <section className="kpiStrip" aria-label="Workspace summary">
@@ -38,6 +39,8 @@ export default function OverviewPage() {
           <small>{data.workspace.market}</small>
         </article>
       </section>
+
+      <LiveMarketPanel />
 
       <section className="vizGrid">
         <BarLineChart
@@ -99,7 +102,9 @@ export default function OverviewPage() {
                 {data.watchlist.slice(0, 4).map((item) => (
                   <tr key={item.symbol}>
                     <td>
-                      <strong>{item.symbol}</strong>
+                      <Link href={`/terminal/NSE/${item.symbol}`}>
+                        <strong>{item.symbol}</strong>
+                      </Link>
                     </td>
                     <td>{money.format(item.price)}</td>
                     <td className={item.change >= 0 ? "positive" : "negative"}>{pct(item.change)}</td>
