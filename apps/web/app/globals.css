@@ -122,6 +122,13 @@ h1, h2, h3, .brand, .authBrand, .heroMetric strong {
   overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.sidebar::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
 }
 .sidebarTop {
   display: flex;
@@ -466,6 +473,13 @@ h1, h2, h3, .brand, .authBrand, .heroMetric strong {
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
   padding: 28px clamp(18px, 3vw, 42px) 48px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.workspaceFrame::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
 }
 .topbar {
   display: flex;
@@ -993,6 +1007,13 @@ html[data-theme="light"] .primary {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   padding: 28px clamp(18px, 3vw, 48px) 48px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.legalFrame::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
 }
 .legalFrameHeader {
   display: flex;
@@ -1014,6 +1035,14 @@ html[data-theme="light"] .primary {
   display: grid;
   place-items: center;
   padding: 24px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.onboarding::-webkit-scrollbar,
+.centerState::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
 }
 .centerState {
   color: var(--muted);
