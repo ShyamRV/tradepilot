@@ -1,0 +1,40 @@
+# TradePilot — forever-free Render blueprint ($0)
+# - Free web service (spins down after ~15 min idle; cold start ~1 min)
+# - API + Telegram worker share one free web service (paid Background Workers not used)
+# - Postgres: use Neon Free (permanent). Do NOT use Render Free Postgres (expires in 30 days).
+#
+# Setup: docs/render-free.md
+# Frontend stays on Vercel → set NEXT_PUBLIC_API_URL to this service's https URL.
+
+services:
+  - type: web
+    name: tradepilot-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerCommand: sh scripts/render_start.sh
+    plan: free
+    healthCheckPath: /ready
+    envVars:
+      - key: TRADEPILOT_ENV
+        value: production
+      - key: LOG_LEVEL
+        value: INFO
+      - key: MARKET_DATA_PROVIDER
+        value: unconfigured
+      - key: MARKET_DATA_MODE
+        value: delayed
+      - key: TRADEPILOT_RATE_LIMIT_PER_MINUTE
+        value: "120"
+      - key: WORKER_POLL_SECONDS
+        value: "5"
+      - key: TRADEPILOT_WORKER_INTERVAL_SECONDS
+        value: "15"
+      # Paste Neon connection string in the Render dashboard (sync: false).
+      - key: DATABASE_URL
+        sync: false
+      - key: TRADEPILOT_CORS_ORIGINS
+        sync: false
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: SENTRY_DSN
+        sync: false

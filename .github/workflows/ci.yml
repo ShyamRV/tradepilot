@@ -1,0 +1,106 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install backend
+        run: python -m pip install -e ".[test]"
+      - name: Run tests
+        run: python -m pytest
+      - name: Compile sources
+        run: python -m compileall -q apps packages tests
+
+  frontend:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install dependencies
+        run: npm install
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Build dashboard
+        run: npm run build
+
+  contracts:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install contract validators
+        run: python -m pip install -e . -r scripts/validation-requirements.txt
+      - name: Validate JSON Schema and OpenAPI
+        run: python scripts/validate_contracts.py
+      - name: Validate Compose
+        env:
+          POSTGRES_PASSWORD: ci-not-a-production-secret
+          MINIO_ROOT_USER: ci-admin
+          MINIO_ROOT_PASSWORD: ci-not-a-production-secret
+        run: docker compose config --quiet
+
+  migration:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:16.6-alpine
+        env:
+          POSTGRES_DB: tradepilot
+          POSTGRES_USER: tradepilot
+          POSTGRES_PASSWORD: tradepilot-ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U tradepilot -d tradepilot"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      PGPASSWORD: tradepilot-ci
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply initial migration
+        run: psql -v ON_ERROR_STOP=1 -h localhost -U tradepilot -d tradepilot -f migrations/0001_initial.sql
+      - name: Apply additive app runtime migration
+        run: psql -v ON_ERROR_STOP=1 -h localhost -U tradepilot -d tradepilot -f migrations/0002_app_runtime.sql
+      - name: Verify RLS, immutable triggers, and runtime tables exist
+        run: |
+          test "$(psql -At -h localhost -U tradepilot -d tradepilot -c "select count(*) from pg_class where relrowsecurity")" -ge 13
+          test "$(psql -At -h localhost -U tradepilot -d tradepilot -c "select count(*) from pg_trigger where not tgisinternal and tgname like '%_immutable'")" -ge 7
+          test "$(psql -At -h localhost -U tradepilot -d tradepilot -c "select count(*) from information_schema.tables where table_name in ('app_users','auth_sessions','app_documents','app_outbox')")" -eq 4
+
+  hygiene:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reject committed local secrets
+        run: |
+          test ! -f .env
+          ! git grep -nE '(BEGIN (RSA|OPENSSH|EC) PRIVATE KEY|sk-[A-Za-z0-9]{20,})' -- . ':!TradePilot_AI_Complete_Product_Idea.md'

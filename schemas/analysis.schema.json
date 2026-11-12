@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tradepilot.example/schemas/analysis.schema.json",
+  "title": "TradePilot deterministic analysis response",
+  "description": "Exact serialized Analysis shape returned by the current API.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "dataset_id", "symbol", "session", "indicators", "evidence", "dataset_checksum", "strategy_hash", "engine_version", "created_at"],
+  "properties": {
+    "id": { "type": "string" },
+    "dataset_id": { "type": "string" },
+    "symbol": { "type": "string" },
+    "session": { "type": "string", "format": "date" },
+    "indicators": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["close", "ema_fast", "ema_slow", "rsi", "macd", "signal", "atr"],
+      "properties": {
+        "close": { "type": ["number", "null"] },
+        "ema_fast": { "type": ["number", "null"] },
+        "ema_slow": { "type": ["number", "null"] },
+        "rsi": { "type": ["number", "null"] },
+        "macd": { "type": ["number", "null"] },
+        "signal": { "type": ["number", "null"] },
+        "atr": { "type": ["number", "null"] }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entry", "exit"],
+      "properties": {
+        "entry": { "$ref": "#/$defs/evidence" },
+        "exit": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "dataset_checksum": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "strategy_hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "engine_version": { "type": "string" },
+    "created_at": { "type": "string", "format": "date-time" }
+  },
+  "$defs": {
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["rule", "matched", "ready"],
+      "properties": {
+        "rule": { "$ref": "strategy.schema.json#/$defs/rule" },
+        "matched": { "type": "boolean" },
+        "ready": { "type": "boolean" }
+      }
+    }
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tradepilot.example/schemas/provider.schema.json",
+  "title": "Market-data provider configuration",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "provider_id", "display_name", "mode", "entitlement_reference", "markets", "delay_minutes", "retention_days", "attribution", "quality"],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "provider_id": { "type": "string", "pattern": "^[a-z][a-z0-9_-]{1,39}$" },
+    "display_name": { "type": "string", "minLength": 1, "maxLength": 120 },
+    "mode": { "enum": ["delayed", "end_of_day"] },
+    "entitlement_reference": { "type": "string", "minLength": 1, "maxLength": 200 },
+    "markets": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "enum": ["crypto", "equity", "forex"] }
+    },
+    "delay_minutes": { "type": "integer", "minimum": 0, "maximum": 1440 },
+    "retention_days": { "type": "integer", "minimum": 1, "maximum": 36500 },
+    "attribution": { "type": "string", "minLength": 1, "maxLength": 500 },
+    "allowed_uses": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "enum": ["display", "indicators", "backtesting", "alerts", "paper_trading", "derived_data"] }
+    },
+    "quality": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["stale_after_seconds", "reject_missing_bars", "reject_invalid_ohlc"],
+      "properties": {
+        "stale_after_seconds": { "type": "integer", "minimum": 60, "maximum": 604800 },
+        "reject_missing_bars": { "type": "boolean" },
+        "reject_invalid_ohlc": { "type": "boolean" },
+        "max_duplicate_rate": { "type": "number", "minimum": 0, "maximum": 0.01 }
+      }
+    },
+    "credential_secret_ref": {
+      "type": "string",
+      "pattern": "^(env|vault|aws-sm|gcp-sm|azure-kv)://",
+      "description": "Reference only; never embed a credential."
+    }
+  }
+}

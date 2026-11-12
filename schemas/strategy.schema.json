@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tradepilot.example/schemas/strategy.schema.json",
+  "title": "TradePilot restricted strategy specification",
+  "description": "Exact JSON shape accepted as StrategyInput.spec by the current API.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["entry", "exit"],
+  "properties": {
+    "entry": { "$ref": "#/$defs/rule" },
+    "exit": { "$ref": "#/$defs/rule" }
+  },
+  "$defs": {
+    "field": {
+      "enum": ["close", "ema_fast", "ema_slow", "rsi", "macd", "signal"]
+    },
+    "rule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["op", "left", "right"],
+      "properties": {
+        "op": { "enum": ["gt", "gte", "lt", "lte", "crosses_above", "crosses_below"] },
+        "left": { "$ref": "#/$defs/field" },
+        "right": {
+          "oneOf": [
+            { "$ref": "#/$defs/field" },
+            { "type": "number" }
+          ]
+        }
+      }
+    }
+  }
+}

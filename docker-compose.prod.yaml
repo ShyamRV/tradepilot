@@ -1,0 +1,88 @@
+# Production-shaped Compose stack: api, worker, postgres.
+# Copy .env.example → .env and set POSTGRES_PASSWORD (and optional secrets).
+# Requires durable DATABASE_URL (wired below). See docs/DEVELOPER_HANDOFF.md.
+name: tradepilot-prod
+
+services:
+  postgres:
+    image: postgres:16.6-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-tradepilot}
+      POSTGRES_USER: ${POSTGRES_USER:-tradepilot}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    volumes:
+      - postgres-prod-data:/var/lib/postgresql/data
+      - ./migrations:/migrations:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+    security_opt:
+      - no-new-privileges:true
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: tradepilot-api:${TRADEPILOT_IMAGE_TAG:-local}
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      TRADEPILOT_ENV: ${TRADEPILOT_ENV:-production}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-tradepilot}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-tradepilot}
+      TRADEPILOT_DB_PATH: ${TRADEPILOT_DB_PATH:-}
+      TRADEPILOT_CORS_ORIGINS: ${TRADEPILOT_CORS_ORIGINS:-http://localhost:3000}
+      TRADEPILOT_RATE_LIMIT_PER_MINUTE: ${TRADEPILOT_RATE_LIMIT_PER_MINUTE:-120}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      SENTRY_DSN: ${SENTRY_DSN:-}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      MARKET_DATA_PROVIDER: ${MARKET_DATA_PROVIDER:-unconfigured}
+      MARKET_DATA_MODE: ${MARKET_DATA_MODE:-delayed}
+    ports:
+      - "${API_PORT:-8000}:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8000/ready"]
+      interval: 15s
+      timeout: 5s
+      retries: 6
+      start_period: 30s
+    security_opt:
+      - no-new-privileges:true
+
+  worker:
+    image: tradepilot-api:${TRADEPILOT_IMAGE_TAG:-local}
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+    command: ["python", "-m", "apps.worker.main"]
+    environment:
+      TRADEPILOT_ENV: ${TRADEPILOT_ENV:-production}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-tradepilot}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-tradepilot}
+      TRADEPILOT_DB_PATH: ${TRADEPILOT_DB_PATH:-}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      SENTRY_DSN: ${SENTRY_DSN:-}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      WORKER_POLL_SECONDS: ${WORKER_POLL_SECONDS:-5}
+      TRADEPILOT_WORKER_INTERVAL_SECONDS: ${TRADEPILOT_WORKER_INTERVAL_SECONDS:-15}
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import apps.worker.main; print('ok')\""]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  postgres-prod-data:

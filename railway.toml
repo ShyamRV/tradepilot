@@ -1,0 +1,28 @@
+# Railway blueprint for TradePilot API (add a second service for the worker).
+# Attach Railway Postgres and map DATABASE_URL from the plugin.
+# Store TELEGRAM_BOT_TOKEN, SENTRY_DSN, and other secrets in Railway Variables
+# or a linked secrets manager — never in this file.
+
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+healthcheckPath = "/ready"
+healthcheckTimeout = 30
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 5
+
+# Default start command is the Dockerfile CMD (uvicorn API).
+# Worker service start command override:
+#   python -m apps.worker.main
+
+[env]
+TRADEPILOT_ENV = "production"
+LOG_LEVEL = "INFO"
+MARKET_DATA_PROVIDER = "unconfigured"
+MARKET_DATA_MODE = "delayed"
+TRADEPILOT_RATE_LIMIT_PER_MINUTE = "120"
+# Set in the dashboard (do not commit real values):
+# DATABASE_URL, TRADEPILOT_CORS_ORIGINS, TELEGRAM_BOT_TOKEN,
+# SENTRY_DSN, TRADEPILOT_DB_PATH, WORKER_POLL_SECONDS

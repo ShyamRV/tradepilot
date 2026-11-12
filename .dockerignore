@@ -1,0 +1,25 @@
+﻿# Ignore local tooling and secrets; keep the image lean.
+.git
+.github
+.venv
+.pytest_cache
+.vercel
+__pycache__
+*.pyc
+*.pyo
+.env
+.env.*
+!.env.example
+node_modules
+apps/web
+apps/web/.next
+docs
+fixtures
+tests
+*.md
+!README.md
+TradePilot_AI_Complete_Product_Idea.md
+compose.yaml
+docker-compose.prod.yaml
+railway.toml
+render.yaml

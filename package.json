@@ -1,0 +1,12 @@
+{
+  "name": "tradepilot",
+  "private": true,
+  "workspaces": [
+    "apps/web"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=@tradepilot/web",
+    "build": "npm run build --workspace=@tradepilot/web",
+    "typecheck": "npm run typecheck --workspace=@tradepilot/web"
+  }
+}
