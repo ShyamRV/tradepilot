@@ -27,6 +27,8 @@ tags:
   - { name: Paper trading }
   - { name: Notifications }
   - { name: Operations }
+  - { name: Sandbox execution }
+  - { name: Agents }
 paths:
   /health:
     get:
@@ -42,6 +44,25 @@ paths:
                 type: object
                 required: [status]
                 properties: { status: { const: ok } }
+
+  /ready:
+    get:
+      tags: [System]
+      operationId: readiness
+      security: []
+      responses:
+        "200":
+          description: Application and durable repository are ready.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status, checks]
+                properties:
+                  status: { const: ready }
+                  checks: { type: object }
+        "503":
+          description: A required dependency is unavailable.
 
   /v1/auth/register:
     post:
@@ -568,6 +589,194 @@ paths:
         "403": { $ref: "#/components/responses/Forbidden" }
         "422": { $ref: "#/components/responses/ValidationError" }
 
+  /v1/workspaces/{workspace_id}/market/quotes/{symbol}:
+    get:
+      tags: [Market data]
+      operationId: getRealtimeQuote
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { $ref: "#/components/parameters/WorkspaceId" }
+        - { $ref: "#/components/parameters/WorkspaceHeader" }
+        - { name: symbol, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Simulated or licensed-provider normalized quote.
+          content:
+            application/json: { schema: { $ref: "#/components/schemas/Quote" } }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "422": { $ref: "#/components/responses/ValidationError" }
+
+  /v1/workspaces/{workspace_id}/sandbox/orders:
+    get:
+      tags: [Sandbox execution]
+      operationId: listSandboxOrders
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { $ref: "#/components/parameters/WorkspaceId" }
+        - { $ref: "#/components/parameters/WorkspaceHeader" }
+      responses:
+        "200":
+          description: Workspace sandbox orders.
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/SandboxOrder" } }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+    post:
+      tags: [Sandbox execution]
+      operationId: submitSandboxOrder
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { $ref: "#/components/parameters/WorkspaceId" }
+        - { $ref: "#/components/parameters/WorkspaceHeader" }
+      requestBody:
+        required: true
+        content:
+          application/json: { schema: { $ref: "#/components/schemas/SandboxOrderInput" } }
+      responses:
+        "201":
+          description: Idempotent sandbox order result.
+          content:
+            application/json: { schema: { $ref: "#/components/schemas/SandboxOrder" } }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "422": { $ref: "#/components/responses/ValidationError" }
+        "503": { description: Sandbox or autonomous execution is disabled. }
+
+  /v1/workspaces/{workspace_id}/sandbox/orders/{order_id}/cancel:
+    post:
+      tags: [Sandbox execution]
+      operationId: cancelSandboxOrder
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { $ref: "#/components/parameters/WorkspaceId" }
+        - { $ref: "#/components/parameters/WorkspaceHeader" }
+        - { name: order_id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Updated sandbox order.
+          content:
+            application/json: { schema: { $ref: "#/components/schemas/SandboxOrder" } }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { description: Order not found. }
+        "409": { description: Order is no longer cancellable. }
+
+  /v1/workspaces/{workspace_id}/execution/control:
+    get:
+      tags: [Sandbox execution]
+      operationId: getExecutionControl
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { $ref: "#/components/parameters/WorkspaceId" }
+        - { $ref: "#/components/parameters/WorkspaceHeader" }
+      responses:
+        "200":
+          description: Effective workspace execution kill state.
+          content:
+            application/json: { schema: { $ref: "#/components/schemas/ExecutionControl" } }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+    put:
+      tags: [Sandbox execution]
+      operationId: setExecutionControl
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { $ref: "#/components/parameters/WorkspaceId" }
+        - { $ref: "#/components/parameters/WorkspaceHeader" }
+      requestBody:
+        required: true
+        content:
+          application/json: { schema: { $ref: "#/components/schemas/ExecutionControlInput" } }
+      responses:
+        "200":
+          description: Updated workspace execution kill state.
+          content:
+            application/json: { schema: { $ref: "#/components/schemas/ExecutionControl" } }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "422": { $ref: "#/components/responses/ValidationError" }
+
+  /v1/workspaces/{workspace_id}/agents:
+    get:
+      tags: [Agents]
+      operationId: listTradingAgents
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { $ref: "#/components/parameters/WorkspaceId" }
+        - { $ref: "#/components/parameters/WorkspaceHeader" }
+      responses:
+        "200":
+          description: Workspace autonomous agents.
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/TradingAgent" } }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+    post:
+      tags: [Agents]
+      operationId: createTradingAgent
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { $ref: "#/components/parameters/WorkspaceId" }
+        - { $ref: "#/components/parameters/WorkspaceHeader" }
+      requestBody:
+        required: true
+        content:
+          application/json: { schema: { $ref: "#/components/schemas/AgentInput" } }
+      responses:
+        "201":
+          description: Agent created paused for review.
+          content:
+            application/json: { schema: { $ref: "#/components/schemas/TradingAgent" } }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "422": { $ref: "#/components/responses/ValidationError" }
+
+  /v1/workspaces/{workspace_id}/agents/{agent_id}/control:
+    post:
+      tags: [Agents]
+      operationId: controlTradingAgent
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { $ref: "#/components/parameters/WorkspaceId" }
+        - { $ref: "#/components/parameters/WorkspaceHeader" }
+        - { name: agent_id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json: { schema: { $ref: "#/components/schemas/AgentControlInput" } }
+      responses:
+        "200":
+          description: Updated agent lifecycle state.
+          content:
+            application/json: { schema: { $ref: "#/components/schemas/TradingAgent" } }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { description: Agent not found. }
+        "422": { $ref: "#/components/responses/ValidationError" }
+        "503": { description: Autonomous execution is disabled. }
+
+  /v1/workspaces/{workspace_id}/agents/{agent_id}/decisions:
+    get:
+      tags: [Agents]
+      operationId: listAgentDecisions
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { $ref: "#/components/parameters/WorkspaceId" }
+        - { $ref: "#/components/parameters/WorkspaceHeader" }
+        - { name: agent_id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Append-only explainable decisions for the agent.
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/AgentDecision" } }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { description: Agent not found. }
+
 components:
   securitySchemes:
     bearerAuth:
@@ -751,6 +960,90 @@ components:
       oneOf:
         - { type: number }
         - { type: string, pattern: "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$" }
+    Quote:
+      type: object
+      required: [symbol, bid, ask, last, as_of, sequence, provider]
+      properties:
+        symbol: { type: string }
+        bid: { $ref: "#/components/schemas/DecimalInput" }
+        ask: { $ref: "#/components/schemas/DecimalInput" }
+        last: { $ref: "#/components/schemas/DecimalInput" }
+        as_of: { type: string, format: date-time }
+        sequence: { type: integer, minimum: 1 }
+        provider: { type: string }
+    SandboxOrderInput:
+      type: object
+      required: [idempotency_key, symbol, side, quantity, equity, cash]
+      properties:
+        idempotency_key: { type: string, minLength: 1, maxLength: 120 }
+        symbol: { type: string, minLength: 1, maxLength: 20 }
+        side: { enum: [buy, sell] }
+        quantity: { type: integer, minimum: 1 }
+        order_type: { enum: [market, limit], default: market }
+        limit_price:
+          oneOf:
+            - { $ref: "#/components/schemas/DecimalInput" }
+            - { type: "null" }
+        equity: { $ref: "#/components/schemas/DecimalInput" }
+        cash: { $ref: "#/components/schemas/DecimalInput" }
+        daily_pnl: { $ref: "#/components/schemas/DecimalInput" }
+        current_position: { type: integer, default: 0 }
+        open_orders: { type: integer, minimum: 0, default: 0 }
+        agent_id: { type: [string, "null"] }
+    SandboxOrder:
+      type: object
+      description: Decimal values are serialized as strings by the API.
+      additionalProperties: true
+    ExecutionControlInput:
+      type: object
+      required: [killed, reason]
+      properties:
+        killed: { type: boolean }
+        reason: { type: string, minLength: 1, maxLength: 500 }
+    ExecutionControl:
+      type: object
+      required: [scope, killed, reason, version]
+      properties:
+        scope: { const: workspace }
+        killed: { type: boolean }
+        reason: { type: string }
+        version: { type: integer, minimum: 0 }
+        updated_at: { type: string, format: date-time }
+    AgentInput:
+      type: object
+      required: [name, symbols, strategy, max_capital, max_daily_loss]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 120 }
+        symbols:
+          type: array
+          minItems: 1
+          maxItems: 100
+          items: { type: string }
+        strategy: { type: string, minLength: 1, maxLength: 120 }
+        max_capital: { $ref: "#/components/schemas/DecimalInput" }
+        max_daily_loss: { $ref: "#/components/schemas/DecimalInput" }
+    AgentControlInput:
+      type: object
+      required: [action, reason]
+      properties:
+        action: { enum: [start, pause, resume, stop, kill] }
+        reason: { type: string, minLength: 1, maxLength: 500 }
+    TradingAgent:
+      type: object
+      additionalProperties: true
+    AgentDecision:
+      type: object
+      required: [id, agent_id, signal, indicators, rationale, risk_checks, authority_version, created_at]
+      properties:
+        id: { type: string }
+        agent_id: { type: string }
+        signal: { type: object }
+        indicators: { type: array, items: { type: object } }
+        rationale: { type: object }
+        risk_checks: { type: array, items: { type: object } }
+        authority_version: { type: string }
+        resulting_order_id: { type: [string, "null"] }
+        created_at: { type: string, format: date-time }
     Fill:
       type: object
       required: [symbol, session, side, quantity, price, fees]

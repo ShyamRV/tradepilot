@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tradepilot.example/schemas/broker-account.schema.json",
+  "title": "Sandbox broker account reference",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["provider", "environment", "account_ref", "currency", "verified_at"],
+  "properties": {
+    "provider": { "type": "string", "pattern": "^[a-z0-9_-]+$", "maxLength": 64 },
+    "environment": { "const": "sandbox" },
+    "account_ref": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "currency": { "const": "INR" },
+    "verified_at": { "type": "string", "format": "date-time" },
+    "capabilities": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "enum": ["quotes", "market_orders", "limit_orders", "stop_orders", "modify", "cancel", "partial_fills"] }
+    }
+  }
+}

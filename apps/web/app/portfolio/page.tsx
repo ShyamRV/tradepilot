@@ -1,6 +1,6 @@
 "use client";
 
-import { MultiLineChart } from "@/components/Charts";
+import { PortfolioAnalytics } from "@/components/PortfolioAnalytics";
 import { useWorkspace } from "@/components/WorkspaceProvider";
 import { money, price } from "@/lib/format";
 
@@ -37,17 +37,7 @@ export default function PortfolioPage() {
         </article>
       </section>
 
-      <MultiLineChart
-        title="Paper equity path"
-        metrics={[
-          { label: "Equity", value: money.format(data.portfolio.equity), tone: "cyan" },
-          { label: "Cash", value: money.format(data.portfolio.cash), tone: "amber" }
-        ]}
-        series={[
-          { tone: "cyan", values: [70, 72, 75, 74, 78, 82, 80, 85, 88, 87, 91, 95] },
-          { tone: "amber", values: [90, 88, 86, 87, 84, 82, 83, 80, 78, 79, 76, 74] }
-        ]}
-      />
+      <PortfolioAnalytics />
 
       <section className="panel">
         <header className="panelHeader">

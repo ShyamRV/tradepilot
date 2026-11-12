@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tradepilot.example/schemas/order-intent.schema.json",
+  "title": "Sandbox order intent",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "instrument_id",
+    "exchange",
+    "symbol",
+    "side",
+    "order_type",
+    "quantity",
+    "validity",
+    "idempotency_key"
+  ],
+  "properties": {
+    "instrument_id": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "exchange": { "enum": ["NSE", "BSE"] },
+    "symbol": { "type": "string", "pattern": "^[A-Z0-9&-]{1,32}$" },
+    "side": { "enum": ["buy", "sell"] },
+    "order_type": { "enum": ["market", "limit", "stop", "stop_limit"] },
+    "quantity": { "type": "integer", "minimum": 1 },
+    "limit_price": {
+      "type": ["string", "null"],
+      "pattern": "^(0|[1-9][0-9]*)(\\.[0-9]{1,4})?$"
+    },
+    "stop_price": {
+      "type": ["string", "null"],
+      "pattern": "^(0|[1-9][0-9]*)(\\.[0-9]{1,4})?$"
+    },
+    "validity": { "enum": ["day", "ioc"] },
+    "product": { "enum": ["delivery", "intraday"], "default": "delivery" },
+    "agent_id": { "type": ["string", "null"], "maxLength": 128 },
+    "authority_version": { "type": ["string", "null"], "maxLength": 128 },
+    "idempotency_key": { "type": "string", "minLength": 8, "maxLength": 128 }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "order_type": { "enum": ["limit", "stop_limit"] } } },
+      "then": { "required": ["limit_price"] }
+    },
+    {
+      "if": { "properties": { "order_type": { "enum": ["stop", "stop_limit"] } } },
+      "then": { "required": ["stop_price"] }
+    }
+  ]
+}

@@ -910,3 +910,165 @@ html[data-theme="light"] .primary {
   html { scroll-behavior: auto; }
   .pageBody, .orbit, .themeReady, .sidebar nav a { animation: none; transition: none; }
 }
+
+/* Trading terminal and agent control surfaces */
+select {
+  font: inherit;
+  color: var(--ink);
+  background: var(--input);
+}
+.terminalPage { display: grid; gap: 14px; }
+.instrumentBar {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(220px, 1.2fr) 1fr auto auto auto;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--panel);
+}
+.instrumentSearch { position: relative; }
+.instrumentSearch label { position: absolute; width: 1px; height: 1px; overflow: hidden; }
+.instrumentSearch input,
+.orderTicket input,
+.orderTicket select,
+.formGrid input,
+.formGrid select {
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 11px;
+  background: var(--input);
+  color: var(--ink);
+}
+.searchResults {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  overflow: hidden;
+  border: 1px solid var(--line-strong);
+  border-radius: 14px;
+  background: var(--panel-solid);
+  box-shadow: var(--shadow);
+}
+.searchResults a { display: grid; gap: 3px; padding: 11px 13px; text-decoration: none; border-bottom: 1px solid var(--line); }
+.searchResults a:hover { background: var(--cyan-soft); }
+.searchResults span { color: var(--muted); font-size: 11px; }
+.instrumentIdentity { display: grid; gap: 3px; }
+.instrumentIdentity > div { display: flex; gap: 8px; align-items: center; }
+.instrumentIdentity h2 { margin: 0; font-size: 17px; }
+.instrumentIdentity > span { color: var(--muted); font-size: 11px; }
+.exchangeTag { padding: 3px 6px; border-radius: 5px; background: var(--cyan-soft); color: var(--cyan); font-size: 9px; font-weight: 800; }
+.livePrice { display: grid; text-align: right; }
+.livePrice strong { font-size: 18px; }
+.livePrice span { font-size: 11px; font-weight: 700; }
+.streamState, .agentStatus { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; }
+.streamState i, .agentStatus i { width: 7px; height: 7px; border-radius: 50%; background: var(--amber); }
+.streamState.live i, .agentStatus.running i { background: var(--lime); box-shadow: 0 0 10px var(--lime); }
+.streamState.demo i, .agentStatus.paused i { background: var(--amber); }
+.streamState.stale i, .agentStatus.killed i { background: var(--red); }
+.terminalGrid { display: grid; grid-template-columns: 190px minmax(420px, 1fr) 280px; gap: 14px; align-items: start; }
+.terminalGrid .panel { border-radius: 18px; box-shadow: none; }
+.watchRail { padding: 10px; position: sticky; top: 14px; }
+.watchRail .panelHeader { padding: 6px 7px 10px; margin: 0; }
+.watchRail a { display: flex; justify-content: space-between; gap: 10px; padding: 11px 8px; border-top: 1px solid var(--line); border-radius: 9px; text-decoration: none; font-size: 11px; }
+.watchRail a:hover, .watchRail a[aria-current="page"] { background: var(--cyan-soft); }
+.watchRail a > span { display: grid; gap: 3px; }
+.watchRail a > span:last-child { text-align: right; }
+.watchRail small { color: var(--muted); font-size: 9px; }
+.chartPanel { padding: 0; overflow: hidden; }
+.chartToolbar { min-height: 46px; display: flex; justify-content: space-between; gap: 10px; align-items: center; padding: 9px 14px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 10px; }
+.chartToolbar div { display: flex; gap: 5px; align-items: center; }
+.chartToolbar button, .chartToolbar strong { border: 0; padding: 5px 8px; border-radius: 7px; background: transparent; color: var(--muted); }
+.chartToolbar strong { background: var(--cyan-soft); color: var(--cyan); }
+.tradingChart { width: 100%; height: 410px; }
+.chartCaption { margin: 0; padding: 8px 14px; border-top: 1px solid var(--line); color: var(--muted); font-size: 10px; }
+.tabList { display: flex; gap: 4px; margin-bottom: 8px; border-bottom: 1px solid var(--line); }
+.tabList button { border: 0; border-bottom: 2px solid transparent; padding: 9px 12px; background: transparent; color: var(--muted); font-weight: 700; text-transform: capitalize; }
+.tabList button[aria-selected="true"] { color: var(--cyan); border-bottom-color: var(--cyan); }
+.blotter td, .blotter th { padding: 10px 8px; font-size: 11px; }
+.orderTicket label { display: grid; gap: 6px; margin: 12px 0; color: var(--muted); font-size: 11px; font-weight: 700; }
+.sideSwitch { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; padding: 4px; border: 1px solid var(--line); border-radius: 12px; }
+.sideSwitch button { border: 0; padding: 8px; border-radius: 8px; background: transparent; color: var(--muted); font-weight: 800; }
+.sideSwitch .buy { color: #041018; background: var(--lime); }
+.sideSwitch .sell { color: white; background: var(--red); }
+.estimate { display: flex; justify-content: space-between; padding-top: 12px; border-top: 1px solid var(--line); font-size: 12px; }
+.fieldError { color: var(--red); font-size: 11px; }
+.successMessage { padding: 8px; border-radius: 8px; background: var(--lime-soft); color: var(--lime); font-size: 11px; }
+.depthHead, .depthRow { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; padding: 7px 2px; text-align: right; font-size: 10px; }
+.depthHead { color: var(--muted); border-bottom: 1px solid var(--line); }
+.modalBackdrop { position: fixed; z-index: 100; inset: 0; display: grid; place-items: center; padding: 20px; background: rgba(2, 5, 10, .76); backdrop-filter: blur(8px); }
+.confirmModal { width: min(100%, 470px); padding: 24px; border: 1px solid var(--line-strong); border-radius: 22px; background: var(--panel-solid); box-shadow: var(--shadow); }
+.confirmModal h2 { margin-bottom: 8px; }
+.confirmModal p { color: var(--muted); line-height: 1.5; }
+.confirmModal dl div { display: flex; justify-content: space-between; padding: 9px 0; border-top: 1px solid var(--line); font-size: 12px; }
+.confirmModal dd { margin: 0; font-weight: 700; }
+.modalActions, .formActions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
+.modalActions .primary, .formActions .primary, .inlineButton { width: auto; margin: 0; }
+.riskNotice, .disclosure { padding: 12px 14px; border: 1px solid rgba(255,176,32,.3); border-radius: 12px; background: var(--amber-soft); color: var(--muted); font-size: 11px; line-height: 1.5; }
+.sectionHero, .agentDetailHeader { display: flex; justify-content: space-between; align-items: center; gap: 20px; }
+.sectionHero h2, .agentDetailHeader h2 { margin: 0 0 8px; font-size: clamp(24px, 3vw, 34px); }
+.sectionHero p, .agentDetailHeader p { margin: 0; color: var(--muted); max-width: 70ch; line-height: 1.5; }
+.inlineButton { display: inline-block; text-decoration: none; white-space: nowrap; }
+.agentGrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.agentCard { display: grid; gap: 12px; padding: 18px; border: 1px solid var(--line); border-radius: 20px; background: var(--panel); text-decoration: none; transition: transform .15s ease, border-color .15s ease; }
+.agentCard:hover { transform: translateY(-2px); border-color: var(--cyan); }
+.agentTop { display: flex; justify-content: space-between; }
+.agentCard h3 { margin: 2px 0 0; }
+.agentCard p { margin: 0; color: var(--muted); font-size: 12px; }
+.agentCard dl { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 0; }
+.agentCard dl div { display: grid; gap: 4px; }
+.agentCard dt { color: var(--muted); font-size: 9px; text-transform: uppercase; }
+.agentCard dd { margin: 0; font-size: 11px; font-weight: 700; }
+.cardAction { color: var(--cyan); font-size: 11px; font-weight: 700; }
+.agentBuilder { width: min(100%, 820px); display: grid; gap: 18px; margin: auto; }
+.formGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 24px; }
+.formGrid label { display: grid; gap: 7px; color: var(--muted); font-size: 11px; font-weight: 700; }
+.formGrid label > span { color: var(--red); font-weight: 500; }
+.formGrid .full { grid-column: 1 / -1; }
+.agentTitle { display: flex; align-items: center; gap: 12px; margin: 5px 0; }
+.backLink { display: inline-block; margin-bottom: 10px; color: var(--muted); font-size: 11px; text-decoration: none; }
+.agentControls { display: flex; gap: 8px; }
+.dangerButton { border: 1px solid rgba(255,107,122,.5); border-radius: 999px; padding: 9px 13px; background: var(--red-soft); color: var(--red); font-weight: 800; }
+.decisionList { list-style: none; margin: 0; padding: 0; }
+.decisionList li { display: grid; grid-template-columns: 75px 1fr; gap: 14px; padding: 16px 0; border-bottom: 1px solid var(--line); }
+.decisionList time { color: var(--muted); font-size: 10px; }
+.decisionList div { display: grid; gap: 7px; }
+.decisionList p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
+.decisionList span { color: var(--lime); font-size: 10px; }
+.decisionList b { font-size: 11px; }
+.analyticsChart { height: 280px; }
+.chartLegend { display: flex; gap: 18px; color: var(--muted); font-size: 10px; }
+.chartLegend span { display: flex; align-items: center; gap: 6px; }
+.chartLegend i { width: 8px; height: 8px; border-radius: 50%; }
+.cyanDot { background: var(--cyan); }
+.amberDot { background: var(--amber); }
+
+@media (max-width: 1280px) {
+  .terminalGrid { grid-template-columns: 160px minmax(380px, 1fr) 260px; }
+  .instrumentBar { grid-template-columns: minmax(190px, 1fr) 1fr auto auto; }
+  .instrumentBar > .ghostButton { display: none; }
+  .agentGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 1050px) {
+  .terminalGrid { grid-template-columns: 1fr 260px; }
+  .watchRail { grid-column: 1 / -1; position: static; display: flex; overflow-x: auto; }
+  .watchRail .panelHeader { min-width: 110px; }
+  .watchRail a { min-width: 140px; border-top: 0; border-left: 1px solid var(--line); }
+}
+@media (max-width: 760px) {
+  .instrumentBar { grid-template-columns: 1fr auto; }
+  .instrumentSearch { grid-column: 1 / -1; }
+  .instrumentIdentity, .streamState { display: none; }
+  .terminalGrid { grid-template-columns: 1fr; }
+  .terminalSide { grid-row: 2; }
+  .agentGrid, .formGrid { grid-template-columns: 1fr; }
+  .formGrid .full { grid-column: auto; }
+  .sectionHero, .agentDetailHeader { align-items: flex-start; flex-direction: column; }
+  .agentControls { width: 100%; }
+  .tradingChart { height: 330px; }
+}

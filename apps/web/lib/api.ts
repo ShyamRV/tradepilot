@@ -75,7 +75,7 @@ export const demoDashboard: DashboardData = {
   }
 };
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
+export const API_URL = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
 
 export const apiConfigured = Boolean(API_URL);
 

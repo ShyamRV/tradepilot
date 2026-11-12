@@ -35,13 +35,19 @@ git push -u origin main
 
 ---
 
-## 1) Create Neon Free Postgres
+## 1) Neon Free Postgres (CLI — preferred)
 
-1. Sign up at [https://neon.tech](https://neon.tech) (free plan, no card required)
-2. New project → name `tradepilot`
-3. Copy the **connection string** (use the pooled URL if shown; SSL on)
-   - Looks like: `postgresql://USER:PASS@ep-xxxx.region.aws.neon.tech/neondb?sslmode=require`
-4. Keep it for Render env `DATABASE_URL`
+From the repo (already linked to project `super-forest-37801309`):
+
+```powershell
+neon login
+neon deploy
+```
+
+That writes gitignored `.env.local` (pooled `DATABASE_URL`, unpooled URL, Auth/Realtime/S3 keys).  
+**Never paste those values into chat or commit them.**
+
+For Render, copy **only** the pooled `DATABASE_URL` from `.env.local` into the Render dashboard env.
 
 App schema for sessions/outbox is created automatically on API boot (`postgres_store`).
 
@@ -57,7 +63,7 @@ App schema for sessions/outbox is created automatically on API boot (`postgres_s
 
 | Key | Value |
 |-----|--------|
-| `DATABASE_URL` | Neon connection string from step 1 |
+| `DATABASE_URL` | Neon pooled URL — copy from local `.env.local` after `neon deploy` (do not paste into chat) |
 | `TRADEPILOT_CORS_ORIGINS` | `https://tradepilot-ai-demo.vercel.app` |
 | `TELEGRAM_BOT_TOKEN` | leave empty until you have a bot |
 | `SENTRY_DSN` | leave empty |

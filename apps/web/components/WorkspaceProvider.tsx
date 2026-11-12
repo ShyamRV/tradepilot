@@ -20,6 +20,8 @@ type Gate = "boot" | "auth" | "workspaces" | "ready";
 
 type WorkspaceContextValue = {
   apiConfigured: boolean;
+  token: string;
+  workspaceId: string;
   gate: Gate;
   data: DashboardData | null;
   busy: boolean;
@@ -105,6 +107,8 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     if (!apiConfigured) return;
     const stored = readSession();
     if (!stored) {
+      // Intentional one-time restoration of browser session state after hydration.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setBusy(false);
       setGate("auth");
       return;
@@ -146,6 +150,8 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo<WorkspaceContextValue>(
     () => ({
       apiConfigured,
+      token,
+      workspaceId,
       gate,
       data,
       busy,

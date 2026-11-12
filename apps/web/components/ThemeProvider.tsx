@@ -22,13 +22,13 @@ function readTheme(): Theme {
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>("dark");
-  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     const next = readTheme();
+    // Intentional hydration handoff from the server-safe default to browser preference.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setThemeState(next);
     document.documentElement.dataset.theme = next;
-    setReady(true);
   }, []);
 
   const setTheme = (next: Theme) => {
@@ -46,11 +46,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     [theme]
   );
 
-  return (
-    <ThemeContext.Provider value={value}>
-      <div className={ready ? "themeReady" : "themeBoot"}>{children}</div>
-    </ThemeContext.Provider>
-  );
+  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
 
 export function useTheme() {

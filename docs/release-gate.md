@@ -35,7 +35,10 @@ document can close these blockers.
 
 - [ ] India counsel's advice has been converted into named product controls, disclosures, operating procedures, and launch restrictions, each with an owner.
 - [ ] Launch jurisdictions and excluded territories are technically enforced.
-- [ ] MVP remains research/paper-only: no broker orders, custody, withdrawals, copy trading, or discretionary management.
+- [ ] Execution is restricted to simulated funds or a contractually permitted
+  broker sandbox. Production broker hosts/accounts, custody, deposits,
+  withdrawals, live-money copy trading, and discretionary management are
+  technically unreachable.
 - [ ] Disclosures clearly state delayed data, source/as-of time, assumptions, uncertainty, fees/slippage, and that results are not guarantees.
 - [ ] Marketing and testimonials are substantiated; no cherry-picked or guaranteed-return claims.
 - [ ] Terms, privacy notice, consent, age eligibility, complaint path, and subprocessors are approved.
@@ -56,6 +59,8 @@ checks may be automated and must pass on the release candidate:
 - [ ] Production secrets, encryption, audit retention, monitoring, paging, rate limits, quotas, and cost caps configured.
 - [ ] Dataset, strategy, model, analysis, and paper-fill versions are reproducible.
 - [ ] Security/privacy review has no unaccepted critical/high findings.
+- [ ] Sandbox-host denylist, unknown-outcome reconciliation, partial-fill,
+  stale-quote, delegated-authority, and all kill-switch tests pass.
 
 ## Human operational evidence
 

@@ -11,11 +11,15 @@ import os
 import time
 import urllib.error
 import urllib.request
+from pathlib import Path
 
 from tradepilot.controls import BetaControls
 from tradepilot.durable import build_runtime
+from tradepilot.env_loader import load_default_env
 from tradepilot.logging_utils import configure_logging, init_sentry_stub
 from tradepilot.messaging import TelegramAdapter, dispatch_outbox
+
+load_default_env(Path(__file__).resolve().parents[2])
 
 
 def run_once(repository, sender, controls: BetaControls | None = None) -> int:

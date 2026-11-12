@@ -12,10 +12,10 @@ that automation and this repository cannot close.
 
 | Area | Status |
 | --- | --- |
-| FastAPI modular monolith (`packages/tradepilot`, `apps/api`) | Auth, workspaces, datasets, strategies, analysis, paper fills, outbox enqueue, rate limit + security headers, `/health`, `/ready` |
-| Durable runtime | `DATABASE_URL` → Postgres (`psycopg`); `TRADEPILOT_DB_PATH` → SQLite; otherwise in-memory (non-production) |
-| Worker entry (`apps/worker`) | Outbox dispatch loop sharing `build_runtime()`; needs owned Telegram token for live sends |
-| Web dashboard (`apps/web`) | Next.js UI; demo mode without `NEXT_PUBLIC_API_URL`, live API mode when set |
+| FastAPI modular monolith (`packages/tradepilot`, `apps/api`) | Auth, workspaces, datasets, strategies, analysis, paper fills, sandbox orders, agent control plane, market WebSocket, outbox enqueue, rate limit + security headers, `/health`, `/ready` |
+| Durable runtime | `DATABASE_URL` → Postgres (`psycopg`); `TRADEPILOT_DB_PATH` → SQLite; otherwise in-memory (non-production). Typed SQLAlchemy/Alembic execution tables are additive; runtime still uses repository documents for most MVP paths. |
+| Worker entry (`apps/worker`) | Outbox dispatch loop sharing `build_runtime()`; needs owned Telegram token for live sends. Execution/reconcile worker primitives exist for sandbox orders. |
+| Web dashboard (`apps/web`) | Next.js UI with trading terminal (`/terminal/...`), agents (`/agents`), portfolio analytics; demo mode without `NEXT_PUBLIC_API_URL`, live API mode when set. Playwright chromium E2E (preview order + agent create/kill) passes against `next build && next start`. |
 | Postgres schema (`migrations/`) | Initial SQL with RLS-oriented tenancy model (alongside runtime auto-schema for MVP adapters) |
 | Local infra (`compose.yaml`) | Loopback Postgres + MinIO |
 | Production packaging | `Dockerfile`, `docker-compose.prod.yaml`, `railway.toml`, `render.yaml` |

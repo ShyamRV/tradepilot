@@ -29,3 +29,9 @@ data/
 artifacts/
 
 .vercel
+.neon
+.cursor/
+apps/web/test-results/
+apps/web/playwright-report/
+apps/web/blob-report/
+**/tsconfig.tsbuildinfo
