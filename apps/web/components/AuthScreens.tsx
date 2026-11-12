@@ -50,15 +50,16 @@ function AuthPanel({
   error: string;
   theme: string;
   onToggleTheme: () => void;
-  onSubmit: (mode: AuthMode, email: string, password: string) => Promise<void>;
+  onSubmit: (mode: AuthMode, email: string, password: string, name?: string) => Promise<void>;
 }) {
   const [mode, setMode] = useState<AuthMode>("login");
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    await onSubmit(mode, email, password);
+    await onSubmit(mode, email.trim(), password, mode === "register" ? name.trim() : undefined);
     setPassword("");
   }
 
@@ -73,15 +74,36 @@ function AuthPanel({
             {theme === "dark" ? "Light" : "Dark"}
           </button>
         </div>
-        <p className="eyebrow">NSE paper research</p>
-        <h1 id="auth-title">{mode === "login" ? "Welcome back" : "Create your desk"}</h1>
-        <p className="onboardingIntro">Sessions stay in this browser tab. Passwords are never stored in the UI.</p>
+        <p className="eyebrow">Paper trading</p>
+        <h1 id="auth-title">{mode === "login" ? "Log in" : "Create account"}</h1>
+        <p className="onboardingIntro">
+          {mode === "login"
+            ? "Enter your email and password to open your desk."
+            : "Just a few details — same simple start as apps like Groww or Binance."}
+        </p>
         {error && (
           <div className="message error" role="alert">
             {error}
           </div>
         )}
         <form onSubmit={submit}>
+          {mode === "register" && (
+            <>
+              <label htmlFor="full-name">Full name</label>
+              <input
+                id="full-name"
+                name="name"
+                type="text"
+                autoComplete="name"
+                required
+                minLength={2}
+                maxLength={80}
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                placeholder="Your name"
+              />
+            </>
+          )}
           <label htmlFor="email">Email</label>
           <input
             id="email"
@@ -91,6 +113,7 @@ function AuthPanel({
             required
             value={email}
             onChange={(event) => setEmail(event.target.value)}
+            placeholder="you@email.com"
           />
           <label htmlFor="password">Password</label>
           <input
@@ -98,18 +121,24 @@ function AuthPanel({
             name="password"
             type="password"
             autoComplete={mode === "login" ? "current-password" : "new-password"}
-            minLength={12}
+            minLength={8}
             required
             value={password}
             onChange={(event) => setPassword(event.target.value)}
+            placeholder={mode === "register" ? "At least 8 characters" : "Password"}
           />
-          <small>At least 12 characters.</small>
+          {mode === "register" && <small>Minimum 8 characters. You can add more profile details later in Account.</small>}
           <button className="primary" type="submit" disabled={busy}>
-            {busy ? "Please wait…" : mode === "login" ? "Log in" : "Register and continue"}
+            {busy ? "Please wait…" : mode === "login" ? "Log in" : "Create account"}
           </button>
         </form>
-        <button className="switchButton" type="button" disabled={busy} onClick={() => setMode(mode === "login" ? "register" : "login")}>
-          {mode === "login" ? "Need an account? Register" : "Already registered? Log in"}
+        <button
+          className="switchButton"
+          type="button"
+          disabled={busy}
+          onClick={() => setMode(mode === "login" ? "register" : "login")}
+        >
+          {mode === "login" ? "New here? Create an account" : "Already have an account? Log in"}
         </button>
       </section>
     </main>
@@ -150,8 +179,9 @@ function WorkspacePanel({
       <section className="onboardingCard wideOnboarding" aria-labelledby="workspace-title">
         <div className="panelTitle">
           <div>
-            <p className="eyebrow">NSE paper research</p>
-            <h1 id="workspace-title">Choose a workspace</h1>
+            <p className="eyebrow">Almost there</p>
+            <h1 id="workspace-title">Name your desk</h1>
+            <p className="onboardingIntro">One workspace is enough to start. You can switch later from Account.</p>
           </div>
           <div className="topActions">
             <button type="button" className="ghostButton" onClick={onToggleTheme}>
@@ -172,30 +202,26 @@ function WorkspacePanel({
         )}
         {busy && (
           <div className="message" role="status">
-            Loading workspaces…
+            Loading…
           </div>
         )}
-        {!busy && items.length === 0 && (
-          <div className="emptyState">
-            <strong>No workspaces yet</strong>
-            <span>Create one to enter the research desk.</span>
-          </div>
+        {items.length > 0 && (
+          <ul className="workspaceList" aria-label="Available workspaces">
+            {items.map(({ workspace, role }) => (
+              <li key={workspace.id}>
+                <button type="button" onClick={() => onSelect(workspace.id)} disabled={busy}>
+                  <span>
+                    <strong>{workspace.name}</strong>
+                    <small>{role}</small>
+                  </span>
+                  <span aria-hidden="true">→</span>
+                </button>
+              </li>
+            ))}
+          </ul>
         )}
-        <ul className="workspaceList" aria-label="Available workspaces">
-          {items.map(({ workspace, role }) => (
-            <li key={workspace.id}>
-              <button type="button" onClick={() => onSelect(workspace.id)} disabled={busy}>
-                <span>
-                  <strong>{workspace.name}</strong>
-                  <small>{role}</small>
-                </span>
-                <span aria-hidden="true">→</span>
-              </button>
-            </li>
-          ))}
-        </ul>
         <form className="createWorkspace" onSubmit={submit}>
-          <label htmlFor="workspace-name">New workspace name</label>
+          <label htmlFor="workspace-name">Desk name</label>
           <div>
             <input
               id="workspace-name"
@@ -203,10 +229,10 @@ function WorkspacePanel({
               maxLength={80}
               value={name}
               onChange={(event) => setName(event.target.value)}
-              placeholder="NSE research workspace"
+              placeholder="My trading desk"
             />
             <button className="primary" type="submit" disabled={busy}>
-              Create
+              Continue
             </button>
           </div>
         </form>

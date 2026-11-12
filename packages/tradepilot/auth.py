@@ -60,8 +60,8 @@ class InMemoryAuthProvider:
 
     def register(self, email: str, password: str) -> User:
         normalized = email.strip().lower()
-        if "@" not in normalized or len(password) < 12:
-            raise AuthenticationError("valid email and password of at least 12 characters required")
+        if "@" not in normalized or len(password) < 8:
+            raise AuthenticationError("valid email and password of at least 8 characters required")
         if normalized in self._users:
             raise AuthenticationError("account already exists")
         salt = secrets.token_bytes(16)

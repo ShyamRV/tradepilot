@@ -804,7 +804,11 @@ def create_app(
             )
         return {
             "workspace": {"name": workspace.name, "market": "NSE cash equities", "mode": "Paper trading", "updatedAt": updated_at},
-            "freshness": {"status": "eod", "asOf": as_of, "delay": "End-of-day dataset" if latest_dataset else "No dataset"},
+            "freshness": {
+                "status": "eod",
+                "asOf": as_of or "",
+                "delay": "Paper market desk",
+            },
             "watchlist": dashboard_watchlist,
             "strategies": [
                 {"id": item["name"], "name": item["name"], "description": "", "enabled": True, "settings": ""}

@@ -97,6 +97,10 @@ h1, h2, h3, .brand, .authBrand, .heroMetric strong {
   min-height: 100vh;
   display: grid;
   grid-template-columns: 248px minmax(0, 1fr);
+  transition: grid-template-columns 180ms ease;
+}
+.appShell.sidebarCollapsed {
+  grid-template-columns: 84px minmax(0, 1fr);
 }
 .sidebar {
   position: sticky;
@@ -109,6 +113,37 @@ h1, h2, h3, .brand, .authBrand, .heroMetric strong {
   flex-direction: column;
   gap: 28px;
   color: #f5f7fb;
+  overflow: hidden;
+}
+.sidebarTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.sidebarToggle {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  color: #f5f7fb;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+}
+.mobileSidebarToggle {
+  display: none;
+  margin-right: 8px;
+  color: var(--text);
+  border-color: var(--line);
+  background: var(--panel);
+}
+.topbarLead {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
 }
 .brand {
   display: flex;
@@ -119,7 +154,93 @@ h1, h2, h3, .brand, .authBrand, .heroMetric strong {
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
+  min-width: 0;
 }
+.brandText { white-space: nowrap; }
+.appShell.sidebarCollapsed .brandText,
+.appShell.sidebarCollapsed .navLabel,
+.appShell.sidebarCollapsed .legalNav,
+.appShell.sidebarCollapsed .sideNote span {
+  display: none;
+}
+.appShell.sidebarCollapsed .sidebar {
+  padding-inline: 12px;
+  align-items: center;
+}
+.appShell.sidebarCollapsed .sidebarTop {
+  flex-direction: column;
+}
+.appShell.sidebarCollapsed .sidebar nav a {
+  justify-content: center;
+  padding-inline: 10px;
+}
+.appShell.sidebarCollapsed .themeToggle {
+  grid-template-columns: 1fr;
+  justify-items: center;
+}
+.avatarLink {
+  text-decoration: none;
+}
+.workflowSteps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.workflowSteps li {
+  display: grid;
+  gap: 4px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--panel);
+}
+.workflowSteps strong { font-size: 12px; }
+.workflowSteps span { color: var(--muted); font-size: 11px; line-height: 1.4; }
+.accountGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.accountActions, .accountLinks { display: grid; gap: 12px; }
+.preferenceRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+.preferenceRow:last-child { border-bottom: 0; }
+.preferenceRow div { display: grid; gap: 4px; }
+.preferenceRow span { color: var(--muted); font-size: 12px; }
+.accountLinks a {
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  text-decoration: none;
+  color: var(--text);
+}
+.accountLogout { margin-top: 14px; width: 100%; }
+.accountSwitchList ul { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 8px; }
+.accountSwitchList button {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--text);
+}
+.accountSwitchList button.active {
+  border-color: var(--cyan);
+  background: var(--cyan-soft);
+}
+.monoValue { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; word-break: break-all; }
 .brand em, .authBrand em { color: var(--cyan); font-style: normal; }
 .brandMark {
   width: 42px;
@@ -881,8 +1002,13 @@ html[data-theme="light"] .primary {
   .kpiStrip, .vizGrid, .split { grid-template-columns: 1fr; }
 }
 @media (max-width: 900px) {
-  .appShell { grid-template-columns: 1fr; }
-  .sidebar {
+  .appShell,
+  .appShell.sidebarCollapsed { grid-template-columns: 1fr; }
+  .mobileSidebarToggle { display: inline-grid; place-items: center; }
+  .workflowSteps { grid-template-columns: 1fr 1fr; }
+  .accountGrid { grid-template-columns: 1fr; }
+  .appShell.sidebarCollapsed .sidebar { display: none; }
+  .appShell:not(.sidebarCollapsed) .sidebar {
     position: sticky;
     top: 0;
     z-index: 20;
@@ -893,11 +1019,11 @@ html[data-theme="light"] .primary {
     padding: 12px 14px;
     overflow-x: auto;
   }
-  .brand { grid-template-columns: auto 1fr; text-align: left; }
-  .brand span:last-child { display: none; }
-  .sidebar nav { display: flex; gap: 6px; }
-  .sidebar nav a { min-width: 84px; }
-  .sideFooter { display: none; }
+  .appShell:not(.sidebarCollapsed) .sidebarTop { width: auto; }
+  .appShell:not(.sidebarCollapsed) .brandText { display: none; }
+  .appShell:not(.sidebarCollapsed) .sidebar nav { display: flex; gap: 6px; }
+  .appShell:not(.sidebarCollapsed) .sidebar nav a { min-width: 84px; }
+  .appShell:not(.sidebarCollapsed) .sideFooter { display: none; }
   .honestyBanner { font-size: 11px; }
   .kpiStrip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }

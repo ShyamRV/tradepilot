@@ -236,8 +236,8 @@ class SqliteAuthProvider:
 
     def register(self, email: str, password: str) -> User:
         normalized = email.strip().lower()
-        if "@" not in normalized or len(password) < 12:
-            raise AuthenticationError("valid email and password of at least 12 characters required")
+        if "@" not in normalized or len(password) < 8:
+            raise AuthenticationError("valid email and password of at least 8 characters required")
         salt = secrets.token_bytes(16)
         user = User(str(uuid4()), normalized)
         with self.repo._lock, self.repo._connect() as conn:

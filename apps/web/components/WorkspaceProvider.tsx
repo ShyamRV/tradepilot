@@ -17,6 +17,7 @@ import {
 
 type Session = { token: string; workspaceId: string };
 type Gate = "boot" | "auth" | "workspaces" | "ready";
+type Profile = { name: string; email: string };
 
 type WorkspaceContextValue = {
   apiConfigured: boolean;
@@ -27,7 +28,8 @@ type WorkspaceContextValue = {
   busy: boolean;
   error: string;
   workspaces: WorkspaceMembership[];
-  handleAuth: (mode: AuthMode, email: string, password: string) => Promise<void>;
+  profile: Profile | null;
+  handleAuth: (mode: AuthMode, email: string, password: string, name?: string) => Promise<void>;
   handleCreate: (name: string) => Promise<void>;
   handleSelect: (id: string) => void;
   handleLogout: () => void;
@@ -37,6 +39,7 @@ type WorkspaceContextValue = {
 
 const WorkspaceContext = createContext<WorkspaceContextValue | null>(null);
 const SESSION_KEY = "tradepilot.session";
+const PROFILE_KEY = "tradepilot.profile";
 
 function saveSession(session: Session | null) {
   if (session) sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
@@ -55,6 +58,22 @@ function readSession(): Session | null {
   }
 }
 
+function saveProfile(profile: Profile | null) {
+  if (profile) localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
+  else localStorage.removeItem(PROFILE_KEY);
+}
+
+function readProfile(): Profile | null {
+  try {
+    const value = JSON.parse(localStorage.getItem(PROFILE_KEY) ?? "null") as Partial<Profile> | null;
+    if (!value || typeof value.email !== "string") return null;
+    return { name: typeof value.name === "string" ? value.name : "", email: value.email };
+  } catch {
+    localStorage.removeItem(PROFILE_KEY);
+    return null;
+  }
+}
+
 export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   const [gate, setGate] = useState<Gate>(apiConfigured ? "boot" : "ready");
   const [data, setData] = useState<DashboardData | null>(apiConfigured ? null : demoDashboard);
@@ -63,14 +82,33 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   const [workspaces, setWorkspaces] = useState<WorkspaceMembership[]>([]);
   const [busy, setBusy] = useState(apiConfigured);
   const [error, setError] = useState("");
+  const [profile, setProfile] = useState<Profile | null>(null);
 
-  async function loadWorkspaceList(activeToken: string) {
+  async function enterWorkspace(activeToken: string, activeWorkspaceId: string) {
+    setWorkspaceId(activeWorkspaceId);
+    saveSession({ token: activeToken, workspaceId: activeWorkspaceId });
+    await loadDashboard(activeToken, activeWorkspaceId);
+  }
+
+  async function loadWorkspaceList(activeToken: string, preferredName?: string) {
     setBusy(true);
     setError("");
-    setGate("workspaces");
     try {
-      const items = await listWorkspaces(activeToken);
+      let items = await listWorkspaces(activeToken);
+      if (items.length === 0) {
+        const deskName = preferredName ? `${preferredName.split(" ")[0]}'s desk` : "My desk";
+        const workspace = await createWorkspace(activeToken, deskName);
+        items = [{ workspace, role: "owner" }];
+        setWorkspaces(items);
+        await enterWorkspace(activeToken, workspace.id);
+        return;
+      }
       setWorkspaces(items);
+      if (items.length === 1) {
+        await enterWorkspace(activeToken, items[0].workspace.id);
+        return;
+      }
+      setGate("workspaces");
     } catch (reason) {
       if (reason instanceof ApiError && reason.status === 401) {
         saveSession(null);
@@ -78,6 +116,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
         setGate("auth");
       }
       setError(reason instanceof Error ? reason.message : "Unable to load workspaces.");
+      setGate("workspaces");
     } finally {
       setBusy(false);
     }
@@ -104,7 +143,12 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   }
 
   useEffect(() => {
-    if (!apiConfigured) return;
+    if (!apiConfigured) {
+      setProfile({ name: "Demo trader", email: "demo@tradepilot.local" });
+      return;
+    }
+    const storedProfile = readProfile();
+    if (storedProfile) setProfile(storedProfile);
     const stored = readSession();
     if (!stored) {
       // Intentional one-time restoration of browser session state after hydration.
@@ -126,6 +170,12 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
           const result = await getDashboard(stored.token, selected, controller.signal);
           setData(result);
           setGate("ready");
+        } else if (items.length === 1) {
+          await enterWorkspace(stored.token, items[0].workspace.id);
+        } else if (items.length === 0) {
+          const workspace = await createWorkspace(stored.token, "My desk");
+          setWorkspaces([{ workspace, role: "owner" }]);
+          await enterWorkspace(stored.token, workspace.id);
         } else {
           saveSession({ token: stored.token, workspaceId: "" });
           setGate("workspaces");
@@ -157,14 +207,21 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
       busy,
       error,
       workspaces,
-      handleAuth: async (mode, email, password) => {
+      profile,
+      handleAuth: async (mode, email, password, name) => {
         setBusy(true);
         setError("");
         try {
           const nextToken = await authenticate(mode, email, password);
+          const nextProfile = {
+            email,
+            name: name?.trim() || readProfile()?.name || email.split("@")[0] || "Trader"
+          };
+          setProfile(nextProfile);
+          saveProfile(nextProfile);
           setToken(nextToken);
           saveSession({ token: nextToken, workspaceId: "" });
-          await loadWorkspaceList(nextToken);
+          await loadWorkspaceList(nextToken, nextProfile.name);
         } catch (reason) {
           setError(reason instanceof Error ? reason.message : "Authentication failed.");
           setBusy(false);
@@ -176,10 +233,8 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
         try {
           const workspace = await createWorkspace(token, name);
           setWorkspaces((items) => [...items, { workspace, role: "owner" }]);
-          setWorkspaceId(workspace.id);
           setData(null);
-          saveSession({ token, workspaceId: workspace.id });
-          await loadDashboard(token, workspace.id);
+          await enterWorkspace(token, workspace.id);
         } catch (reason) {
           setError(reason instanceof Error ? reason.message : "Unable to create workspace.");
           setBusy(false);
@@ -206,10 +261,10 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
         if (token && workspaceId) void loadDashboard(token, workspaceId);
       },
       retryWorkspaces: () => {
-        if (token) void loadWorkspaceList(token);
+        if (token) void loadWorkspaceList(token, profile?.name);
       }
     }),
-    [busy, data, error, gate, token, workspaceId, workspaces]
+    [busy, data, error, gate, profile, token, workspaceId, workspaces]
   );
 
   return <WorkspaceContext.Provider value={value}>{children}</WorkspaceContext.Provider>;

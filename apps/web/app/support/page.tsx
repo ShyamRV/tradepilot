@@ -13,12 +13,10 @@ export default function SupportPage() {
         <h3>Before you write</h3>
         <ul>
           <li>
-            Confirm the honesty banner: <strong>Paper trading only · Not investment advice · Delayed/EOD data</strong>.
+            Confirm the honesty banner: <strong>Paper trading only · Not investment advice</strong>.
           </li>
-          <li>Check the freshness strip for the as-of timestamp on market data.</li>
           <li>
-            If you see &quot;Illustrative demo&quot; labels, <code>NEXT_PUBLIC_API_URL</code> is unset and the UI is
-            showing sample data only.
+            Open <strong>Account</strong> for your profile, workspace, and preferences.
           </li>
           <li>
             Analysis shows rule pass/fail counts, not probability of profit. Backtest returns are illustrative demo

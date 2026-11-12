@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import { useTheme } from "@/components/ThemeProvider";
 import { useWorkspace } from "@/components/WorkspaceProvider";
 
@@ -14,7 +15,8 @@ const NAV = [
   { href: "/strategies", label: "Strategies", icon: "⊹" },
   { href: "/analysis", label: "Analysis", icon: "◎" },
   { href: "/portfolio", label: "Portfolio", icon: "▣" },
-  { href: "/backtests", label: "Backtests", icon: "↗" }
+  { href: "/backtests", label: "Backtests", icon: "↗" },
+  { href: "/account", label: "Account", icon: "◉" }
 ];
 
 const LEGAL = [
@@ -26,24 +28,67 @@ const LEGAL = [
 const PAGE_TITLES: Record<string, string> = {
   "/privacy": "Privacy Policy",
   "/terms": "Terms of Use",
-  "/support": "Support"
+  "/support": "Support",
+  "/account": "Account"
 };
+
+const SIDEBAR_KEY = "tradepilot.sidebarCollapsed";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { theme, toggleTheme } = useTheme();
-  const { data, apiConfigured, handleLogout, busy, error, reload } = useWorkspace();
+  const { data, apiConfigured, handleLogout, busy, error, reload, profile } = useWorkspace();
   const legalTitle = PAGE_TITLES[pathname];
+  const [collapsed, setCollapsed] = useState(false);
+
+  useEffect(() => {
+    try {
+      setCollapsed(window.localStorage.getItem(SIDEBAR_KEY) === "1");
+    } catch {
+      // Ignore storage failures.
+    }
+  }, []);
+
+  function toggleSidebar() {
+    setCollapsed((current) => {
+      const next = !current;
+      try {
+        window.localStorage.setItem(SIDEBAR_KEY, next ? "1" : "0");
+      } catch {
+        // Ignore storage failures.
+      }
+      return next;
+    });
+  }
+
+  const initials = (profile?.name || profile?.email || "TP")
+    .split(/[\s@]+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("") || "TP";
 
   return (
-    <div className="appShell">
+    <div className={`appShell ${collapsed ? "sidebarCollapsed" : ""}`}>
       <aside className="sidebar" aria-label="Primary">
-        <Link href="/overview" className="brand">
-          <span className="brandMark" aria-hidden="true" />
-          <span>
-            TradePilot <em>AI</em>
-          </span>
-        </Link>
+        <div className="sidebarTop">
+          <Link href="/overview" className="brand">
+            <span className="brandMark" aria-hidden="true" />
+            <span className="brandText">
+              TradePilot <em>AI</em>
+            </span>
+          </Link>
+          <button
+            type="button"
+            className="sidebarToggle"
+            onClick={toggleSidebar}
+            aria-label={collapsed ? "Open sidebar" : "Close sidebar"}
+            aria-expanded={!collapsed}
+            title={collapsed ? "Open sidebar" : "Close sidebar"}
+          >
+            {collapsed ? "»" : "«"}
+          </button>
+        </div>
 
         <nav>
           {NAV.map((item) => {
@@ -51,13 +96,19 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               pathname === item.href ||
               (item.href.startsWith("/terminal") && pathname.startsWith("/terminal")) ||
               (item.href === "/agents" && pathname.startsWith("/agents")) ||
-              (item.href === "/markets" && pathname.startsWith("/markets"));
+              (item.href === "/markets" && pathname.startsWith("/markets")) ||
+              (item.href === "/account" && pathname.startsWith("/account"));
             return (
-              <Link key={item.href} href={item.href} aria-current={current ? "page" : undefined}>
+              <Link
+                key={item.href}
+                href={item.href}
+                aria-current={current ? "page" : undefined}
+                title={item.label}
+              >
                 <span className="navIcon" aria-hidden="true">
                   {item.icon}
                 </span>
-                <span>{item.label}</span>
+                <span className="navLabel">{item.label}</span>
               </Link>
             );
           })}
@@ -66,11 +117,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <div className="sideFooter">
           <button type="button" className="themeToggle" onClick={toggleTheme} aria-label="Toggle color theme">
             <span className="themeKnob" data-mode={theme} />
-            <span>{theme === "dark" ? "Dark mode" : "Light mode"}</span>
+            <span className="navLabel">{theme === "dark" ? "Dark mode" : "Light mode"}</span>
           </button>
           <div className="sideNote">
             <strong>Paper mode</strong>
-            <span>No live orders. Delayed / EOD research only. Not investment advice.</span>
+            <span className="navLabel">No live orders. Not investment advice.</span>
           </div>
           <nav className="legalNav" aria-label="Legal">
             {LEGAL.map((item) => (
@@ -84,26 +135,35 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       <div className="workspaceFrame">
         <header className="topbar">
-          <div>
-            <p className="eyebrow">{legalTitle ? "Legal" : "Workspace"}</p>
-            <h1>{legalTitle ?? data?.workspace.name ?? "TradePilot"}</h1>
-            <p className="topMeta">
-              {data?.workspace.market ?? "NSE cash equities"} · {data?.workspace.mode ?? "Paper trading"}
-            </p>
+          <div className="topbarLead">
+            <button
+              type="button"
+              className="sidebarToggle mobileSidebarToggle"
+              onClick={toggleSidebar}
+              aria-label={collapsed ? "Open sidebar" : "Close sidebar"}
+            >
+              ☰
+            </button>
+            <div>
+              <p className="eyebrow">{legalTitle ? "Legal" : "Workspace"}</p>
+              <h1>{legalTitle ?? data?.workspace.name ?? "TradePilot"}</h1>
+              <p className="topMeta">
+                {data?.workspace.market ?? "NSE cash equities"} · {data?.workspace.mode ?? "Paper trading"}
+              </p>
+            </div>
           </div>
           <div className="topActions">
-            <span className="pill warn">{data?.freshness.status?.toUpperCase() ?? "EOD"}</span>
+            <span className="pill">Paper</span>
             <button type="button" className="ghostButton" onClick={toggleTheme}>
               {theme === "dark" ? "Light" : "Dark"}
             </button>
-            {apiConfigured ? (
+            <Link href="/account" className="avatarLink" aria-label="Open account">
+              <span className="avatar">{apiConfigured ? initials : "DE"}</span>
+            </Link>
+            {apiConfigured && (
               <button type="button" className="ghostButton" onClick={handleLogout}>
                 Log out
               </button>
-            ) : (
-              <span className="avatar" aria-label="Demo account">
-                DE
-              </span>
             )}
           </div>
         </header>
@@ -112,19 +172,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <span>Paper trading only</span>
           <span aria-hidden="true">·</span>
           <span>Not investment advice</span>
-          <span aria-hidden="true">·</span>
-          <span>Delayed/EOD data</span>
         </div>
-
-        {data && (
-          <div className="freshness" role="status">
-            <div>
-              <strong>{data.freshness.delay}</strong>
-              <span>Market data as of {data.freshness.asOf}. Confirm current prices before acting.</span>
-            </div>
-            <span className="pill warn">AS-OF</span>
-          </div>
-        )}
 
         {busy && (
           <div className="message" role="status">
@@ -138,12 +186,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               Retry
             </button>
           </div>
-        )}
-        {!apiConfigured && (
-          <p className="demoLabel" role="status">
-            Demo mode · Illustrative sample data only · NEXT_PUBLIC_API_URL unset · Not live market data · Not investment
-            advice
-          </p>
         )}
 
         <div className="pageBody">{children}</div>
