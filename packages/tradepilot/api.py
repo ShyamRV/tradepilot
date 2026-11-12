@@ -28,6 +28,7 @@ from .durable import build_runtime
 from .execution import PaperLedger, backtest
 from .logging_utils import configure_logging, init_sentry_stub
 from .market import Bar, TradingCalendar, ingest
+from .quote_relay import QuoteRelay
 from .realtime import SandboxBroker, SimulatedMarketDataProvider
 from .risk import PretradeContext, RiskLimits, evaluate_pretrade, position_size
 from .settings import TradingSettings
@@ -171,6 +172,7 @@ def create_app(
     trading_settings: TradingSettings | None = None,
     market_data_provider: MarketDataProvider | None = None,
     broker_gateway: BrokerGateway | None = None,
+    quote_relay: QuoteRelay | None = None,
 ) -> FastAPI:
     production = os.getenv("TRADEPILOT_ENV", "development").lower() == "production"
     if repository is None and auth_provider is None:
@@ -224,9 +226,11 @@ def create_app(
         allow_headers=["Authorization", "Content-Type", "X-Workspace-ID", "Idempotency-Key"],
     )
     app.state.repository, app.state.auth_provider, app.state.controls = repo, auth, beta
+    relay = quote_relay or QuoteRelay.from_env()
     app.state.trading_settings = settings
     app.state.market_data_provider = market_provider
     app.state.broker_gateway = broker
+    app.state.quote_relay = relay
 
     def bearer(authorization: str = Header(...)) -> str:
         scheme, _, token = authorization.partition(" ")
@@ -523,6 +527,35 @@ def create_app(
                 await asyncio.sleep(0.25)
         except WebSocketDisconnect:
             return
+
+    @app.get("/v1/market/relay/quotes")
+    def relay_quotes():
+        """Latest US/crypto quotes from the server-side relay cache (API key never leaves the API)."""
+        return {
+            "provider": relay.provider,
+            "quotes": relay.snapshot(),
+            "disclaimer": "US equities/crypto via server relay when configured; otherwise simulated. Not investment advice.",
+        }
+
+    @app.websocket("/v1/market/relay/stream")
+    async def relay_stream(websocket: WebSocket):
+        await websocket.accept()
+        queue = await relay.subscribe()
+        try:
+            await websocket.send_json(
+                {
+                    "type": "hello",
+                    "provider": relay.provider,
+                    "disclaimer": "Server-side quote relay. Provider API keys are not exposed to browsers.",
+                }
+            )
+            while True:
+                message = await queue.get()
+                await websocket.send_json(jsonable_encoder(message))
+        except WebSocketDisconnect:
+            return
+        finally:
+            await relay.unsubscribe(queue)
 
     @app.post("/v1/workspaces/{workspace_id}/sandbox/orders", status_code=201)
     def create_sandbox_order(

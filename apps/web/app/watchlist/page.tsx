@@ -1,6 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { Sparkline } from "@/components/Charts";
+import { IndiaMarketWidgets } from "@/components/tradingview/IndiaMarketWidgets";
 import { useWorkspace } from "@/components/WorkspaceProvider";
 import { pct, price } from "@/lib/format";
 
@@ -11,9 +13,11 @@ export default function WatchlistPage() {
   return (
     <div className="stack">
       <p className="pageIntro">
-        Track NSE names with published end-of-day prices only. Sparklines are illustrative momentum shapes for the demo
-        desk, not intraday ticks.
+        Primary NSE/BSE watchlist and indices use TradingView embeds with a visible <strong>15-min delayed</strong>{" "}
+        label. Workspace rows below remain paper research markers for the terminal.
       </p>
+
+      <IndiaMarketWidgets />
 
       <section className="kpiStrip">
         {data.watchlist.slice(0, 4).map((item) => (
@@ -35,8 +39,10 @@ export default function WatchlistPage() {
 
       <section className="panel">
         <header className="panelHeader">
-          <h2>Full watchlist</h2>
-          <span className="pill">{data.watchlist.length} symbols</span>
+          <h2>Workspace watchlist</h2>
+          <Link className="ghostButton" href="/markets">
+            Markets desk
+          </Link>
         </header>
         {data.watchlist.length === 0 ? (
           <div className="emptyState">
@@ -59,7 +65,9 @@ export default function WatchlistPage() {
                 {data.watchlist.map((item) => (
                   <tr key={item.symbol}>
                     <td>
-                      <strong>{item.symbol}</strong>
+                      <Link href={`/terminal/NSE/${item.symbol}`}>
+                        <strong>{item.symbol}</strong>
+                      </Link>
                     </td>
                     <td>{price.format(item.price)}</td>
                     <td className={item.change >= 0 ? "positive" : "negative"}>{pct(item.change)}</td>

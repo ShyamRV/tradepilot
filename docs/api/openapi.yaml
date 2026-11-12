@@ -64,6 +64,50 @@ paths:
         "503":
           description: A required dependency is unavailable.
 
+  /v1/market/relay/quotes:
+    get:
+      tags: [Market data]
+      operationId: relayQuotes
+      security: []
+      summary: Cached US/crypto quotes from the server-side relay
+      description: >
+        Fans out the latest cached prices from one upstream Finnhub/Alpaca socket
+        (or the simulator). Provider API keys never appear in the response.
+      responses:
+        "200":
+          description: Relay snapshot.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [provider, quotes]
+                properties:
+                  provider: { type: string }
+                  disclaimer: { type: string }
+                  quotes:
+                    type: array
+                    items:
+                      type: object
+                      required: [symbol, last, change_pct, as_of, source]
+                      properties:
+                        symbol: { type: string }
+                        last: { type: number }
+                        change_pct: { type: number }
+                        as_of: { type: string, format: date-time }
+                        source: { type: string }
+                        delayed: { type: boolean }
+
+  /v1/market/relay/stream:
+    get:
+      tags: [Market data]
+      operationId: relayStream
+      security: []
+      summary: WebSocket fan-out of relay quotes
+      description: Upgrade to WebSocket. Messages are hello + quote events from the shared cache.
+      responses:
+        "101":
+          description: Switching Protocols
+
   /v1/auth/register:
     post:
       tags: [Auth]

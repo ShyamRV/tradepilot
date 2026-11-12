@@ -7,6 +7,7 @@ import { useWorkspace } from "@/components/WorkspaceProvider";
 
 const NAV = [
   { href: "/overview", label: "Overview", icon: "◈" },
+  { href: "/markets", label: "Markets", icon: "◔" },
   { href: "/terminal/NSE/RELIANCE", label: "Terminal", icon: "⌁" },
   { href: "/watchlist", label: "Watchlist", icon: "▦" },
   { href: "/agents", label: "AI Agents", icon: "✦" },
@@ -49,7 +50,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             const current =
               pathname === item.href ||
               (item.href.startsWith("/terminal") && pathname.startsWith("/terminal")) ||
-              (item.href === "/agents" && pathname.startsWith("/agents"));
+              (item.href === "/agents" && pathname.startsWith("/agents")) ||
+              (item.href === "/markets" && pathname.startsWith("/markets"));
             return (
               <Link key={item.href} href={item.href} aria-current={current ? "page" : undefined}>
                 <span className="navIcon" aria-hidden="true">

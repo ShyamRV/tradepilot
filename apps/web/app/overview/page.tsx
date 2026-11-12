@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { BarLineChart, MultiLineChart, Sparkline } from "@/components/Charts";
-import { LiveMarketPanel } from "@/components/LiveMarketPanel";
+import { RelayMarketPanel } from "@/components/RelayMarketPanel";
+import { IndiaMarketWidgets } from "@/components/tradingview/IndiaMarketWidgets";
 import { useWorkspace } from "@/components/WorkspaceProvider";
 import { money, pct } from "@/lib/format";
 
@@ -13,8 +14,8 @@ export default function OverviewPage() {
   return (
     <div className="stack">
       <p className="pageIntro">
-        A research desk for delayed NSE cash equities. Review the live paper market graph, strategy pressure, and
-        portfolio exposure before moving into the terminal.
+        Dashboard market desk: TradingView widgets for Indian indices / watchlist / advanced chart (15-min delayed), plus
+        a branded US/crypto relay chart. Paper portfolio metrics stay below.
       </p>
 
       <section className="kpiStrip" aria-label="Workspace summary">
@@ -40,7 +41,8 @@ export default function OverviewPage() {
         </article>
       </section>
 
-      <LiveMarketPanel />
+      <IndiaMarketWidgets />
+      <RelayMarketPanel />
 
       <section className="vizGrid">
         <BarLineChart
@@ -84,8 +86,8 @@ export default function OverviewPage() {
         <article className="panel">
           <header className="panelHeader">
             <h2>Watchlist pulse</h2>
-            <Link className="ghostButton" href="/watchlist">
-              Open page
+            <Link className="ghostButton" href="/markets">
+              Open markets
             </Link>
           </header>
           <div className="tableWrap">
