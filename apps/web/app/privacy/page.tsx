@@ -4,7 +4,7 @@ export default function PrivacyPage() {
       <p className="eyebrow">Legal</p>
       <h2>Privacy Policy</h2>
       <p className="legalLead">
-        This draft describes how TradePilot AI (&quot;TradePilot&quot;, &quot;we&quot;, &quot;us&quot;) intends to handle
+        This draft describes how Athena (&quot;Athena&quot;, &quot;we&quot;, &quot;us&quot;) intends to handle
         information when you use the research and paper-trading workspace. It is a product draft for launch readiness and
         should be reviewed by counsel before production publication.
       </p>
@@ -13,7 +13,7 @@ export default function PrivacyPage() {
       <section>
         <h3>1. Scope</h3>
         <p>
-          TradePilot provides educational market research tools, strategy evaluation, and paper (simulated) trading for
+          Athena provides educational market research tools, strategy evaluation, and paper (simulated) trading for
           NSE cash equities. We do not operate a brokerage, hold customer funds, or provide investment advice. This
           policy covers the web application, related APIs, and support channels.
         </p>
@@ -40,7 +40,7 @@ export default function PrivacyPage() {
         </ul>
         <p>
           In demo mode (when no API URL is configured), sample data stays in your browser session and is not uploaded to
-          TradePilot servers.
+          Athena servers.
         </p>
       </section>
 
@@ -58,7 +58,7 @@ export default function PrivacyPage() {
       <section>
         <h3>4. Market data</h3>
         <p>
-          Quotes and historical series shown in TradePilot are delayed or end-of-day research inputs from configured
+          Quotes and historical series shown in Athena are delayed or end-of-day research inputs from configured
           providers. They are not real-time trading feeds. Data freshness notices in the product supersede any stale
           figures you may see elsewhere.
         </p>

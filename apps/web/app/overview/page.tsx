@@ -165,7 +165,7 @@ export default function OverviewPage() {
         </article>
       </section>
 
-      <p className="pageFooter">TradePilot is a research and simulation tool, not a broker or investment adviser.</p>
+      <p className="pageFooter">Athena is a research and simulation tool, not a broker or investment adviser.</p>
     </div>
   );
 }

@@ -55,7 +55,7 @@ export function TradingViewWidget({ scriptSrc, config, height = 420, title, clas
       </header>
       <div ref={hostRef} className="tvWidgetHost" style={{ minHeight: typeof height === "number" ? height : undefined }} />
       <p className="chartCaption">
-        Embedded TradingView widget · delayed Indian market data · not investment advice · TradePilot does not
+        Embedded TradingView widget · delayed Indian market data · not investment advice · Athena does not
         redistribute exchange feeds from this embed.
       </p>
     </section>

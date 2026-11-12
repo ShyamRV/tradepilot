@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 import { AuthMode } from "@/lib/api";
+import { BrandLogo } from "@/components/BrandLogo";
 import { useTheme } from "@/components/ThemeProvider";
 import { useWorkspace } from "@/components/WorkspaceProvider";
 
@@ -67,9 +67,7 @@ function AuthPanel({
     <main className="onboarding">
       <section className="onboardingCard" aria-labelledby="auth-title">
         <div className="authTop">
-          <Link className="authBrand" href="/">
-            TradePilot <em>AI</em>
-          </Link>
+          <BrandLogo href="/" className="authBrandLockup" showWordmark />
           <button type="button" className="ghostButton" onClick={onToggleTheme}>
             {theme === "dark" ? "Light" : "Dark"}
           </button>

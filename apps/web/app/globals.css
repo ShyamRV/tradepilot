@@ -60,14 +60,19 @@ html[data-theme="light"] {
 }
 
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+  height: 100%;
+}
 body {
   margin: 0;
-  min-height: 100vh;
+  min-height: 100%;
+  height: 100%;
+  overflow: hidden;
   color: var(--ink);
   background:
-    radial-gradient(circle at top left, rgba(51, 225, 255, 0.08), transparent 28%),
-    radial-gradient(circle at 85% 12%, rgba(255, 93, 184, 0.07), transparent 24%),
+    radial-gradient(circle at top left, rgba(212, 175, 55, 0.1), transparent 28%),
+    radial-gradient(circle at 85% 12%, rgba(255, 93, 184, 0.05), transparent 24%),
     radial-gradient(circle at 70% 90%, rgba(255, 176, 32, 0.06), transparent 30%),
     var(--bg);
   font-family: var(--font-body), "Segoe UI", sans-serif;
@@ -94,26 +99,29 @@ h1, h2, h3, .brand, .authBrand, .heroMetric strong {
 .themeReady { opacity: 1; transition: opacity 180ms ease; }
 
 .appShell {
-  min-height: 100vh;
+  height: 100dvh;
+  max-height: 100dvh;
   display: grid;
   grid-template-columns: 248px minmax(0, 1fr);
+  overflow: hidden;
   transition: grid-template-columns 180ms ease;
 }
 .appShell.sidebarCollapsed {
   grid-template-columns: 84px minmax(0, 1fr);
 }
 .sidebar {
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  padding: 26px 18px;
+  height: 100%;
+  min-height: 0;
+  padding: 22px 16px;
   background: linear-gradient(180deg, #0b0f16, var(--sidebar));
   border-right: 1px solid var(--line);
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 20px;
   color: #f5f7fb;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 .sidebarTop {
   display: flex;
@@ -152,11 +160,63 @@ h1, h2, h3, .brand, .authBrand, .heroMetric strong {
   text-decoration: none;
   font-size: 14px;
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   min-width: 0;
 }
-.brandText { white-space: nowrap; }
+.brandText {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  white-space: nowrap;
+}
+.brandTagline {
+  color: rgba(245, 247, 251, 0.55);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.brandLogoMark {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #000;
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  box-shadow: 0 0 18px rgba(212, 175, 55, 0.18);
+}
+.brandLogoMark.compact {
+  width: 40px;
+  height: 40px;
+}
+.brandLogoImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+}
+.authBrandLockup {
+  display: grid;
+  justify-items: start;
+  gap: 10px;
+}
+.authBrandLockup .brandLogoMark {
+  width: 88px;
+  height: 88px;
+  border-radius: 20px;
+}
+.authBrandLockup .brandText {
+  font-size: 22px;
+  letter-spacing: 0.18em;
+}
+.authBrandLockup .brandTagline {
+  font-size: 10px;
+  color: var(--muted);
+}
 .appShell.sidebarCollapsed .brandText,
 .appShell.sidebarCollapsed .navLabel,
 .appShell.sidebarCollapsed .legalNav,
@@ -279,16 +339,7 @@ h1, h2, h3, .brand, .authBrand, .heroMetric strong {
   background: var(--cyan-soft);
 }
 .monoValue { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; word-break: break-all; }
-.brand em, .authBrand em { color: var(--cyan); font-style: normal; }
-.brandMark {
-  width: 42px;
-  height: 42px;
-  flex: 0 0 auto;
-  border-radius: 14px;
-  background:
-    linear-gradient(135deg, rgba(51, 225, 255, 0.95), rgba(255, 93, 184, 0.75) 55%, rgba(255, 176, 32, 0.85));
-  box-shadow: var(--glow-cyan);
-}
+.brand em, .authBrand em { color: #d4af37; font-style: normal; }
 .sidebar nav {
   display: grid;
   gap: 8px;
@@ -408,7 +459,13 @@ h1, h2, h3, .brand, .authBrand, .heroMetric strong {
 
 .workspaceFrame {
   min-width: 0;
-  padding: 28px clamp(18px, 3vw, 42px) 40px;
+  min-height: 0;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: 28px clamp(18px, 3vw, 42px) 48px;
 }
 .topbar {
   display: flex;
@@ -931,7 +988,10 @@ html[data-theme="light"] .primary {
   letter-spacing: 0.02em;
 }
 .legalFrame {
-  min-height: 100vh;
+  min-height: 100dvh;
+  height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   padding: 28px clamp(18px, 3vw, 48px) 48px;
 }
 .legalFrameHeader {
@@ -947,7 +1007,10 @@ html[data-theme="light"] .primary {
 }
 
 .onboarding, .centerState {
-  min-height: 100vh;
+  min-height: 100dvh;
+  height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   display: grid;
   place-items: center;
   padding: 24px;
@@ -1047,21 +1110,31 @@ html[data-theme="light"] .primary {
   .accountGrid { grid-template-columns: 1fr; }
   .appShell.sidebarCollapsed .sidebar { display: none; }
   .appShell:not(.sidebarCollapsed) .sidebar {
-    position: sticky;
-    top: 0;
-    z-index: 20;
-    height: auto;
-    flex-direction: row;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 14px;
-    overflow-x: auto;
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 40;
+    width: min(86vw, 280px);
+    height: 100dvh;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 18px;
+    padding: 18px 14px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    box-shadow: 24px 0 60px rgba(0, 0, 0, 0.45);
+  }
+  .appShell:not(.sidebarCollapsed)::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 30;
+    background: rgba(2, 5, 10, 0.55);
   }
   .appShell:not(.sidebarCollapsed) .sidebarTop { width: auto; }
-  .appShell:not(.sidebarCollapsed) .brandText { display: none; }
-  .appShell:not(.sidebarCollapsed) .sidebar nav { display: flex; gap: 6px; }
-  .appShell:not(.sidebarCollapsed) .sidebar nav a { min-width: 84px; }
-  .appShell:not(.sidebarCollapsed) .sideFooter { display: none; }
+  .appShell:not(.sidebarCollapsed) .brandText { display: grid; }
+  .appShell:not(.sidebarCollapsed) .sidebar nav { display: grid; gap: 8px; }
+  .appShell:not(.sidebarCollapsed) .sidebar nav a { min-width: 0; }
+  .appShell:not(.sidebarCollapsed) .sideFooter { display: grid; }
   .honestyBanner { font-size: 11px; }
   .kpiStrip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }

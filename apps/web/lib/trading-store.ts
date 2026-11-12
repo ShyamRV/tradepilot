@@ -98,7 +98,7 @@ export const useTradingStore = create<TradingState>()(
         }))
     }),
     {
-      name: "tradepilot.trading",
+      name: "Athena.trading",
       partialize: (state) => ({ watchlist: state.watchlist, orders: state.orders, agents: state.agents })
     }
   )

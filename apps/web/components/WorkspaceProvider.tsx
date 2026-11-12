@@ -38,22 +38,27 @@ type WorkspaceContextValue = {
 };
 
 const WorkspaceContext = createContext<WorkspaceContextValue | null>(null);
-const SESSION_KEY = "tradepilot.session";
-const PROFILE_KEY = "tradepilot.profile";
+const SESSION_KEY = "athena.session";
+const PROFILE_KEY = "athena.profile";
+const LEGACY_SESSION_KEY = "tradepilot.session";
+const LEGACY_PROFILE_KEY = "tradepilot.profile";
 
 function saveSession(session: Session | null) {
   if (session) sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
   else sessionStorage.removeItem(SESSION_KEY);
+  sessionStorage.removeItem(LEGACY_SESSION_KEY);
 }
 
 function readSession(): Session | null {
   try {
-    const value = JSON.parse(sessionStorage.getItem(SESSION_KEY) ?? "null") as Partial<Session> | null;
+    const raw = sessionStorage.getItem(SESSION_KEY) ?? sessionStorage.getItem(LEGACY_SESSION_KEY) ?? "null";
+    const value = JSON.parse(raw) as Partial<Session> | null;
     return value && typeof value.token === "string" && typeof value.workspaceId === "string"
       ? { token: value.token, workspaceId: value.workspaceId }
       : null;
   } catch {
     sessionStorage.removeItem(SESSION_KEY);
+    sessionStorage.removeItem(LEGACY_SESSION_KEY);
     return null;
   }
 }
@@ -61,15 +66,18 @@ function readSession(): Session | null {
 function saveProfile(profile: Profile | null) {
   if (profile) localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
   else localStorage.removeItem(PROFILE_KEY);
+  localStorage.removeItem(LEGACY_PROFILE_KEY);
 }
 
 function readProfile(): Profile | null {
   try {
-    const value = JSON.parse(localStorage.getItem(PROFILE_KEY) ?? "null") as Partial<Profile> | null;
+    const raw = localStorage.getItem(PROFILE_KEY) ?? localStorage.getItem(LEGACY_PROFILE_KEY) ?? "null";
+    const value = JSON.parse(raw) as Partial<Profile> | null;
     if (!value || typeof value.email !== "string") return null;
     return { name: typeof value.name === "string" ? value.name : "", email: value.email };
   } catch {
     localStorage.removeItem(PROFILE_KEY);
+    localStorage.removeItem(LEGACY_PROFILE_KEY);
     return null;
   }
 }
@@ -144,7 +152,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!apiConfigured) {
-      setProfile({ name: "Demo trader", email: "demo@tradepilot.local" });
+      setProfile({ name: "Demo trader", email: "demo@athena.local" });
       return;
     }
     const storedProfile = readProfile();

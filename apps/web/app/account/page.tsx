@@ -31,7 +31,7 @@ export default function AccountPage() {
             </div>
             <div>
               <dt>Email</dt>
-              <dd>{profile?.email || (apiConfigured ? "—" : "demo@tradepilot.local")}</dd>
+              <dd>{profile?.email || (apiConfigured ? "—" : "demo@Athena.local")}</dd>
             </div>
             <div>
               <dt>Account type</dt>

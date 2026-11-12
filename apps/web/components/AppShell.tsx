@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { BrandLogo } from "@/components/BrandLogo";
 import { useTheme } from "@/components/ThemeProvider";
 import { useWorkspace } from "@/components/WorkspaceProvider";
 
@@ -33,18 +34,24 @@ const PAGE_TITLES: Record<string, string> = {
   "/account": "Account"
 };
 
-const SIDEBAR_KEY = "tradepilot.sidebarCollapsed";
+const SIDEBAR_KEY = "athena.sidebarCollapsed";
+const LEGACY_SIDEBAR_KEY = "tradepilot.sidebarCollapsed";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { theme, toggleTheme } = useTheme();
   const { data, apiConfigured, handleLogout, busy, error, reload, profile } = useWorkspace();
   const legalTitle = PAGE_TITLES[pathname];
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
 
   useEffect(() => {
     try {
-      setCollapsed(window.localStorage.getItem(SIDEBAR_KEY) === "1");
+      const saved = window.localStorage.getItem(SIDEBAR_KEY) ?? window.localStorage.getItem(LEGACY_SIDEBAR_KEY);
+      if (saved === "0" || saved === "1") {
+        setCollapsed(saved === "1");
+        return;
+      }
+      setCollapsed(window.matchMedia("(max-width: 900px)").matches);
     } catch {
       // Ignore storage failures.
     }
@@ -62,23 +69,18 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     });
   }
 
-  const initials = (profile?.name || profile?.email || "TP")
+  const initials = (profile?.name || profile?.email || "AT")
     .split(/[\s@]+/)
     .filter(Boolean)
     .slice(0, 2)
     .map((part) => part[0]?.toUpperCase() ?? "")
-    .join("") || "TP";
+    .join("") || "AT";
 
   return (
     <div className={`appShell ${collapsed ? "sidebarCollapsed" : ""}`}>
       <aside className="sidebar" aria-label="Primary">
         <div className="sidebarTop">
-          <Link href="/overview" className="brand">
-            <span className="brandMark" aria-hidden="true" />
-            <span className="brandText">
-              TradePilot <em>AI</em>
-            </span>
-          </Link>
+          <BrandLogo compact showWordmark={!collapsed} />
           <button
             type="button"
             className="sidebarToggle"
@@ -106,6 +108,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 href={item.href}
                 aria-current={current ? "page" : undefined}
                 title={item.label}
+                onClick={() => {
+                  if (typeof window !== "undefined" && window.matchMedia("(max-width: 900px)").matches) {
+                    setCollapsed(true);
+                    try {
+                      window.localStorage.setItem(SIDEBAR_KEY, "1");
+                    } catch {
+                      // Ignore storage failures.
+                    }
+                  }
+                }}
               >
                 <span className="navIcon" aria-hidden="true">
                   {item.icon}
@@ -148,7 +160,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </button>
             <div>
               <p className="eyebrow">{legalTitle ? "Legal" : "Workspace"}</p>
-              <h1>{legalTitle ?? data?.workspace.name ?? "TradePilot"}</h1>
+              <h1>{legalTitle ?? data?.workspace.name ?? "Athena"}</h1>
               <p className="topMeta">
                 {data?.workspace.market ?? "NSE cash equities"} · {data?.workspace.mode ?? "Paper trading"}
               </p>

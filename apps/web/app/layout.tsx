@@ -17,8 +17,12 @@ const body = IBM_Plex_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "TradePilot AI",
-  description: "Evidence-led NSE research, strategy analysis, and paper trading"
+  title: "Athena",
+  description: "Athena — dare more and rise above. NSE research, AI agents, and paper trading.",
+  icons: {
+    icon: "/athena-logo.png",
+    apple: "/athena-logo.png"
+  }
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
@@ -27,7 +31,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body className={`${display.variable} ${body.variable}`}>
         <script
           dangerouslySetInnerHTML={{
-            __html: `(() => { try { const t = localStorage.getItem("tradepilot.theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; else if (window.matchMedia("(prefers-color-scheme: light)").matches) document.documentElement.dataset.theme = "light"; } catch (_) {} })();`
+            __html: `(() => { try { const t = localStorage.getItem("athena.theme") || localStorage.getItem("tradepilot.theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; else if (window.matchMedia("(prefers-color-scheme: light)").matches) document.documentElement.dataset.theme = "light"; } catch (_) {} })();`
           }}
         />
         <Providers>

@@ -4,7 +4,7 @@ export default function SupportPage() {
       <p className="eyebrow">Help</p>
       <h2>Support</h2>
       <p className="legalLead">
-        TradePilot AI is a paper-trading research desk. Use this page for product help, data freshness questions, and
+        Athena is a paper-trading research desk. Use this page for product help, data freshness questions, and
         account issues. We cannot place live broker orders or provide personalized investment advice.
       </p>
       <p className="legalMeta">Support hours (draft): Mon–Fri 10:00–18:00 IST · Response within 1–2 business days</p>
@@ -34,7 +34,7 @@ export default function SupportPage() {
           <div>
             <dt>Email</dt>
             <dd>
-              <a href="mailto:support@tradepilot.example">support@tradepilot.example</a> (placeholder — replace before
+              <a href="mailto:support@Athena.example">support@Athena.example</a> (placeholder — replace before
               launch)
             </dd>
           </div>
@@ -72,7 +72,7 @@ export default function SupportPage() {
       <section>
         <h3>Status &amp; limitations</h3>
         <p>
-          TradePilot does not guarantee uninterrupted service. Market data may be delayed or incomplete. Simulated
+          Athena does not guarantee uninterrupted service. Market data may be delayed or incomplete. Simulated
           performance is not a promise of future results. For urgent security concerns, email support with
           &quot;SECURITY&quot; in the subject line.
         </p>

@@ -231,7 +231,7 @@ def create_app(
         }
     configure_logging("api")
     init_sentry_stub()
-    app = FastAPI(title="TradePilot API", version="0.3.0")
+    app = FastAPI(title="Athena API", version="0.3.0")
     origins = [item.strip() for item in os.getenv("TRADEPILOT_CORS_ORIGINS", "http://localhost:3000").split(",") if item.strip()]
     app.add_middleware(SecurityHeadersMiddleware)
     app.add_middleware(RateLimitMiddleware, limit_per_minute=int(os.getenv("TRADEPILOT_RATE_LIMIT_PER_MINUTE", "120")))
@@ -297,7 +297,7 @@ def create_app(
 
     @app.get("/health")
     def health():
-        return {"status": "ok", "service": "tradepilot-api"}
+        return {"status": "ok", "service": "athena-api"}
 
     @app.get("/ready")
     def ready():

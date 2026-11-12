@@ -45,7 +45,7 @@ export const usePlaygroundStore = create<PlaygroundState>()(
         })
     }),
     {
-      name: "tradepilot.playground"
+      name: "Athena.playground"
     }
   )
 );

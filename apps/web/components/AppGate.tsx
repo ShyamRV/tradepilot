@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AuthScreens } from "@/components/AuthScreens";
 import { AppShell } from "@/components/AppShell";
+import { BrandLogo } from "@/components/BrandLogo";
 import { useTheme } from "@/components/ThemeProvider";
 import { useWorkspace } from "@/components/WorkspaceProvider";
 
@@ -38,9 +39,7 @@ function LegalFrame({ children }: { children: React.ReactNode }) {
   return (
     <main className="legalFrame">
       <header className="legalFrameHeader">
-        <Link href="/" className="authBrand">
-          TradePilot <em>AI</em>
-        </Link>
+        <BrandLogo href="/" className="authBrandLockup" compact showWordmark />
         <div className="topActions">
           <div className="honestyBanner compact" role="note">
             <span>Paper trading only</span>
